@@ -1,0 +1,115 @@
+<?xml version="1.0"?>
+
+<project name="thobe.logFileViewer.plugins.console" basedir="." default="create-jar">
+
+	<!-- [init] - task for setup of initial properties -->
+	<target name="init">
+		<echo message="Initial setup" />
+
+		<!-- set version here -->
+		<property name="CP.Program-Version" value="1.0.0" />
+		<!-- set main-class here or uncomment line if u build a library -->		
+		<!-- set licence here -->
+		<property name="CP.License" value="Licensed under the New BSD License (3-clause lic)" />
+		<property name="CP.Copyright" value="Copyright (C) 2015, Thomas Obenaus. All rights reserved." />
+		<property name="CP.Author" value="Thomas Obenaus" />
+		<property name="CP.Contact" value="obenaus.thomas@gmail.com" />
+
+		<!-- don't change these properties -->
+		<property name="CP.eclipse.build.dir" value="bin" />
+		<property name="CP.eclipse.src.dir" value="src" />
+		<property name="CP.eclipse.lib.dir" value="libs" />
+
+		<property name="CP.jar.dir" value="jar" />
+		<property name="CP.apiDocZip" value="${ant.project.name}_doc.zip" />
+		<property name="CP.sourceZip" value="${ant.project.name}_src.zip" />
+		<property name="CP.sourceTemp" value="_src_tmp" />
+		<property name="CP.jarName" value="${ant.project.name}.jar" />
+
+		<tstamp>
+			<format property="CP.creation-date" pattern="YYYY-MM-DD zzz" locale="de,DE" />
+		</tstamp>
+	</target>
+
+	<!-- [create-doc] create api-doc, build/pack zip-file <project-name>_doc.zip -->
+	<target name="create-doc" depends="init">
+		<echo message="Create and zip API-Doc" />
+		<ant antfile="javadocPluginApi.xml" dir="" />
+		<zip destfile="${CP.apiDocZip}" basedir="plugin-api" />
+	</target>
+
+	<!-- [create-src] zipps the source-code into a zip-file -->
+	<target name="create-src" depends="init">
+		<echo message="Copy source-files and zip them" />
+		<mkdir dir="${CP.sourceTemp}" />
+		<!-- copy files -->
+		<copy toDir="${CP.sourceTemp}/">
+			<fileset dir="${CP.eclipse.src.dir}">
+				<include name="thobe/logfileViewer/plugins/console/**/*.class" />
+				<include name="thobe/logfileViewer/plugins/console/**/*.properties" />							
+				<exclude name="playground/**" />
+				<exclude name="testing/**" />
+			</fileset>
+		</copy>
+		<zip destfile="${CP.sourceZip}" basedir="${CP.sourceTemp}" />
+		<delete dir="${CP.sourceTemp}" />
+	</target>
+
+	<!-- [clean] delete temp folder "jar" -->
+	<target name="clean" depends="init">
+		<echo message="Deleting folder /${CP.jar.dir}." />
+		<delete dir="${CP.jar.dir}" />
+	</target>
+
+	<!-- [print-props-1] print property program-version and licence -->
+	<target name="print-props-1" depends="init">
+		<echo message="Building version '${CP.Program-Version}'" />
+		<echo message="License is '${CP.License}'" />
+	</target>
+
+	<!-- [create-jar] create jar file -->
+	<target name="create-jar" depends="clean,print-props-1">
+		<echo message="Copy files from build-directory /${CP.eclipse.build.dir} to /${CP.jar.dir}." />
+		<!-- copy files from build dir -->
+		<copy toDir="${CP.jar.dir}/">
+			<fileset dir="${CP.eclipse.build.dir}">
+				<include name="thobe/logfileViewer/plugins/console/**/*.class" />
+				<include name="thobe/logfileViewer/plugins/console/**/*.properties" />
+				<include name="thobe/logfileViewer/plugins/console/**/*.gif" />
+				<include name="thobe/logfileViewer/plugins/console/**/*.png" />						
+				<exclude name="**/*.jar" />
+				<exclude name="playground/**" />
+				<exclude name="testing/**" />
+			</fileset>
+		</copy>
+
+		<echo message="Extract referenced libraries." />		
+		<unzip src="${CP.eclipse.lib.dir}/widgets.jar" dest="${CP.jar.dir}" />
+		<unzip src="${CP.eclipse.lib.dir}/thobe.logFileViewer.plugin.api.jar" dest="${CP.jar.dir}" />
+
+		<!-- create jar-file -->
+		<echo message="Create jar-file /${CP.jar.dir}/${CP.jarName}." />
+		<echo message="Program-Version: ${CP.Program-Version}" />
+		<jar destfile="${CP.jar.dir}/${CP.jarName}" basedir="${CP.jar.dir}">
+			<!-- write properties to manifest -->
+			<manifest>
+				<attribute name="Program-Version" value="${CP.Program-Version}" />
+				<attribute name="Copyright" value="${CP.Copyright}" />
+				<attribute name="Author" value="${CP.Author}" />
+				<attribute name="Contact" value="${CP.Contact}" />
+				<attribute name="Created" value="${CP.creation-date}" />
+				<attribute name="Licence" value="${CP.License}" />
+			</manifest>
+		</jar>
+
+		<!-- copy jar-file to projet dir -->
+		<echo message="copy ${CP.jar.dir}/${CP.jarName} into project-directory" />
+		<copy file="${CP.jar.dir}/${CP.jarName}" todir="." />
+
+		<!-- clean temp jar dir -->
+		<antcall target="clean">
+		</antcall>
+	</target>
+
+	<target name="create-all" depends="clean,create-src,create-doc,create-jar"/>
+</project>
