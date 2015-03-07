@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="javadoc">
+    <target name="javadoc">
+        <javadoc access="public" author="true" classpath="libs/thobe.logFileViewer.plugin.api.jar:libs/widgets.jar" destdir="doc/perfMon" doctitle="thobe.logFileViewer.plugins.perfMon" nodeprecated="false" nodeprecatedlist="false" noindex="false" nonavbar="false" notree="false" packagenames="thobe.logfileViewer.plugins.perfMon" source="1.7" sourcepath="src" splitindex="true" use="true" version="true"/>
+    </target>
+</project>

@@ -1,0 +1,115 @@
+<?xml version="1.0"?>
+
+<project name="thobe.logFileViewer.plugins.taskView" basedir="." default="create-jar">
+
+	<!-- [init] - task for setup of initial properties -->
+	<target name="init">
+		<echo message="Initial setup" />
+
+		<!-- set version here -->
+		<property name="TV.Program-Version" value="0.1.0" />
+		<!-- set main-class here or uncomment line if u build a library -->		
+		<!-- set licence here -->
+		<property name="TV.License" value="Licensed under the New BSD License (3-clause lic)" />
+		<property name="TV.Copyright" value="Copyright (C) 2015, Thomas Obenaus. All rights reserved." />
+		<property name="TV.Author" value="Thomas Obenaus" />
+		<property name="TV.Contact" value="obenaus.thomas@gmail.com" />
+
+		<!-- don't change these properties -->
+		<property name="TV.eclipse.build.dir" value="bin" />
+		<property name="TV.eclipse.src.dir" value="src" />
+		<property name="TV.eclipse.lib.dir" value="libs" />
+
+		<property name="TV.jar.dir" value="jar" />
+		<property name="TV.apiDocZip" value="${ant.project.name}_doc.zip" />
+		<property name="TV.sourceZip" value="${ant.project.name}_src.zip" />
+		<property name="TV.sourceTemp" value="_src_tmp" />
+		<property name="TV.jarName" value="${ant.project.name}.jar" />
+
+		<tstamp>
+			<format property="TV.creation-date" pattern="YYYY-MM-DD zzz" locale="de,DE" />
+		</tstamp>
+	</target>
+
+	<!-- [create-doc] create api-doc, build/pack zip-file <project-name>_doc.zip -->
+	<target name="create-doc" depends="init">
+		<echo message="Create and zip API-Doc" />
+		<ant antfile="doc/jd_taskView.xml" dir="" />
+		<zip destfile="${TV.apiDocZip}" basedir="doc/taskView" />
+	</target>
+
+	<!-- [create-src] zipps the source-code into a zip-file -->
+	<target name="create-src" depends="init">
+		<echo message="Copy source-files and zip them" />
+		<mkdir dir="${TV.sourceTemp}" />
+		<!-- copy files -->
+		<copy toDir="${TV.sourceTemp}/">
+			<fileset dir="${TV.eclipse.src.dir}">
+				<include name="thobe/logfileViewer/plugins/taskView/**/*.java" />
+				<include name="thobe/logfileViewer/plugins/taskView/**/*.properties" />							
+				<exclude name="playground/**" />
+				<exclude name="testing/**" />
+			</fileset>
+		</copy>
+		<zip destfile="${TV.sourceZip}" basedir="${TV.sourceTemp}" />
+		<delete dir="${TV.sourceTemp}" />
+	</target>
+
+	<!-- [clean] delete temp folder "jar" -->
+	<target name="clean" depends="init">
+		<echo message="Deleting folder /${TV.jar.dir}." />
+		<delete dir="${TV.jar.dir}" />
+	</target>
+
+	<!-- [print-props-1] print property program-version and licence -->
+	<target name="print-props-1" depends="init">
+		<echo message="Building version '${TV.Program-Version}'" />
+		<echo message="License is '${TV.License}'" />
+	</target>
+
+	<!-- [create-jar] create jar file -->
+	<target name="create-jar" depends="clean,print-props-1">
+		<echo message="Copy files from build-directory /${TV.eclipse.build.dir} to /${TV.jar.dir}." />
+		<!-- copy files from build dir -->
+		<copy toDir="${TV.jar.dir}/">
+			<fileset dir="${TV.eclipse.build.dir}">
+				<include name="thobe/logfileViewer/plugins/taskView/**/*.class" />
+				<include name="thobe/logfileViewer/plugins/taskView/**/*.properties" />
+				<include name="thobe/logfileViewer/plugins/taskView/**/*.gif" />
+				<include name="thobe/logfileViewer/plugins/taskView/**/*.png" />						
+				<exclude name="**/*.jar" />
+				<exclude name="playground/**" />
+				<exclude name="testing/**" />
+			</fileset>
+		</copy>
+
+		<echo message="Extract referenced libraries." />		
+		<unzip src="${TV.eclipse.lib.dir}/widgets.jar" dest="${TV.jar.dir}" />
+		<unzip src="${TV.eclipse.lib.dir}/thobe.logFileViewer.plugin.api.jar" dest="${TV.jar.dir}" />
+
+		<!-- create jar-file -->
+		<echo message="Create jar-file /${TV.jar.dir}/${TV.jarName}." />
+		<echo message="Program-Version: ${TV.Program-Version}" />
+		<jar destfile="${TV.jar.dir}/${TV.jarName}" basedir="${TV.jar.dir}">
+			<!-- write properties to manifest -->
+			<manifest>
+				<attribute name="Program-Version" value="${TV.Program-Version}" />
+				<attribute name="Copyright" value="${TV.Copyright}" />
+				<attribute name="Author" value="${TV.Author}" />
+				<attribute name="Contact" value="${TV.Contact}" />
+				<attribute name="Created" value="${TV.creation-date}" />
+				<attribute name="Licence" value="${TV.License}" />
+			</manifest>
+		</jar>
+
+		<!-- copy jar-file to projet dir -->
+		<echo message="copy ${TV.jar.dir}/${TV.jarName} into project-directory" />
+		<copy file="${TV.jar.dir}/${TV.jarName}" todir="." />
+
+		<!-- clean temp jar dir -->
+		<antcall target="clean">
+		</antcall>
+	</target>
+
+	<target name="create-all" depends="clean,create-src,create-doc,create-jar"/>
+</project>
