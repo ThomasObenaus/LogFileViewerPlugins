@@ -38,6 +38,10 @@ import thobe.logfileviewer.kernel.util.SizeOf;
  */
 public class Console extends Plugin implements ISubConsoleFactoryAccess
 {
+	private static final int			MAJOR_VERSION				= 0;
+	private static final int			MINOR_VERSION				= 9;
+	private static final int			BUGFIX_VERSION				= 0;
+
 	public static final String			FULL_PLUGIN_NAME			= "thobe.logfileviewer.plugin.Console";
 	/**
 	 * Max time spent waiting for completion of the next block of {@link LogLine}s (in MS)
@@ -402,5 +406,23 @@ public class Console extends Plugin implements ISubConsoleFactoryAccess
 				}
 			}
 		}
+	}
+
+	@Override
+	public int getMajorVersion( )
+	{
+		return MAJOR_VERSION;
+	}
+
+	@Override
+	public int getMinorVersion( )
+	{
+		return MINOR_VERSION;
+	}
+
+	@Override
+	public int getBugfixVersion( )
+	{
+		return BUGFIX_VERSION;
 	}
 }

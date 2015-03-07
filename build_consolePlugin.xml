@@ -34,8 +34,8 @@
 	<!-- [create-doc] create api-doc, build/pack zip-file <project-name>_doc.zip -->
 	<target name="create-doc" depends="init">
 		<echo message="Create and zip API-Doc" />
-		<ant antfile="javadocPluginApi.xml" dir="" />
-		<zip destfile="${CP.apiDocZip}" basedir="plugin-api" />
+		<ant antfile="doc/jd_console.xml" dir="" />
+		<zip destfile="${CP.apiDocZip}" basedir="doc/console" />
 	</target>
 
 	<!-- [create-src] zipps the source-code into a zip-file -->
@@ -45,7 +45,7 @@
 		<!-- copy files -->
 		<copy toDir="${CP.sourceTemp}/">
 			<fileset dir="${CP.eclipse.src.dir}">
-				<include name="thobe/logfileViewer/plugins/console/**/*.class" />
+				<include name="thobe/logfileViewer/plugins/console/**/*.java" />
 				<include name="thobe/logfileViewer/plugins/console/**/*.properties" />							
 				<exclude name="playground/**" />
 				<exclude name="testing/**" />
