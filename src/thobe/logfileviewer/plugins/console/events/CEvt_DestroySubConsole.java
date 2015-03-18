@@ -8,9 +8,9 @@
  *  Project:    LogFileViewer
  */
 
-package thobe.logfileViewer.plugins.console.events;
+package thobe.logfileviewer.plugins.console.events;
 
-import thobe.logfileViewer.plugins.console.SubConsole;
+import thobe.logfileviewer.plugins.console.SubConsole;
 
 /**
  * @author Thomas Obenaus

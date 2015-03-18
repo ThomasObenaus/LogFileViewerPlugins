@@ -8,7 +8,7 @@
  *  Project:    LogFileViewer
  */
 
-package thobe.logfileViewer.plugins.console;
+package thobe.logfileviewer.plugins.console;
 
 import java.util.ArrayList;
 import java.util.List;

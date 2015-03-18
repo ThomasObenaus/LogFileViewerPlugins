@@ -8,7 +8,7 @@
  *  Project:    EthTrace
  */
 
-package thobe.logfileViewer.plugins.console;
+package thobe.logfileviewer.plugins.console;
 
 import java.util.ArrayList;
 import java.util.Deque;
@@ -20,8 +20,6 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
-import thobe.logfileViewer.plugins.console.events.CEvt_DestroySubConsole;
-import thobe.logfileViewer.plugins.console.events.ConsoleEvent;
 import thobe.logfileviewer.kernel.plugin.IPlugin;
 import thobe.logfileviewer.kernel.plugin.IPluginAccess;
 import thobe.logfileviewer.kernel.plugin.IPluginUI;
@@ -29,6 +27,8 @@ import thobe.logfileviewer.kernel.plugin.IPluginUIComponent;
 import thobe.logfileviewer.kernel.plugin.Plugin;
 import thobe.logfileviewer.kernel.source.logline.LogLine;
 import thobe.logfileviewer.kernel.util.SizeOf;
+import thobe.logfileviewer.plugins.console.events.CEvt_DestroySubConsole;
+import thobe.logfileviewer.plugins.console.events.ConsoleEvent;
 
 /**
  * Implementation of the {@link Console} {@link IPlugin}.

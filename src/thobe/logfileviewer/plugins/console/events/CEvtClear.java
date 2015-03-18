@@ -8,17 +8,17 @@
  *  Project:    LogFileViewer
  */
 
-package thobe.logfileViewer.plugins.console.events;
+package thobe.logfileviewer.plugins.console.events;
 
 /**
  * @author Thomas Obenaus
- * @source CEvt_ScrollToLast.java
- * @date Jun 18, 2014
+ * @source CEvtClear.java
+ * @date 25.06.2014
  */
-public class CEvt_ScrollToLast extends CEvt_Scroll
+public class CEvtClear extends ConsoleEvent
 {
-	public CEvt_ScrollToLast( )
+	public CEvtClear( )
 	{
-		super( ConsoleEventType.SCROLL_TO_LAST );
+		super( ConsoleEventType.CLEAR );
 	}
 }

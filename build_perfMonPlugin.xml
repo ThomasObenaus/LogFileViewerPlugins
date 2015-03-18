@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 
-<project name="thobe.logFileViewer.plugins.perfMon" basedir="." default="create-jar">
+<project name="thobe.logfileviewer.plugins.perfMon" basedir="." default="create-jar">
 
 	<!-- [init] - task for setup of initial properties -->
 	<target name="init">
@@ -45,8 +45,8 @@
 		<!-- copy files -->
 		<copy toDir="${PM.sourceTemp}/">
 			<fileset dir="${PM.eclipse.src.dir}">
-				<include name="thobe/logfileViewer/plugins/perfMon/**/*.java" />
-				<include name="thobe/logfileViewer/plugins/perfMon/**/*.properties" />							
+				<include name="thobe/logfileviewer/plugins/perfMon/**/*.java" />
+				<include name="thobe/logfileviewer/plugins/perfMon/**/*.properties" />							
 				<exclude name="playground/**" />
 				<exclude name="testing/**" />
 			</fileset>
@@ -73,10 +73,10 @@
 		<!-- copy files from build dir -->
 		<copy toDir="${PM.jar.dir}/">
 			<fileset dir="${PM.eclipse.build.dir}">
-				<include name="thobe/logfileViewer/plugins/perfMon/**/*.class" />
-				<include name="thobe/logfileViewer/plugins/perfMon/**/*.properties" />
-				<include name="thobe/logfileViewer/plugins/perfMon/**/*.gif" />
-				<include name="thobe/logfileViewer/plugins/perfMon/**/*.png" />						
+				<include name="thobe/logfileviewer/plugins/perfMon/**/*.class" />
+				<include name="thobe/logfileviewer/plugins/perfMon/**/*.properties" />
+				<include name="thobe/logfileviewer/plugins/perfMon/**/*.gif" />
+				<include name="thobe/logfileviewer/plugins/perfMon/**/*.png" />						
 				<exclude name="**/*.jar" />
 				<exclude name="playground/**" />
 				<exclude name="testing/**" />

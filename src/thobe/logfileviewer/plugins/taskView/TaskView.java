@@ -8,7 +8,7 @@
  *  Project:    LogFileViewer
  */
 
-package thobe.logfileViewer.plugins.perfMon;
+package thobe.logfileviewer.plugins.taskView;
 
 import java.util.List;
 import java.util.logging.Logger;
@@ -21,55 +21,50 @@ import thobe.logfileviewer.kernel.source.logline.LogLine;
 
 /**
  * @author Thomas Obenaus
- * @source PerformanceMonitor.java
+ * @source TaskView.java
  * @date Jul 7, 2014
  */
-public class PerformanceMonitor extends Plugin
+public class TaskView extends Plugin
 {
-	public static final String	FULL_PLUGIN_NAME	= "thobe.logfileviewer.performance.Performance";
+	public static final String	FULL_PLUGIN_NAME	= "thobe.logfileviewer.plugin.TaskView";
 
 	private Logger				log;
+	private TaskViewUI			uiComponent;
 
-	public PerformanceMonitor( )
+	public TaskView( )
 	{
 		super( FULL_PLUGIN_NAME, FULL_PLUGIN_NAME );
 		this.log = Logger.getLogger( FULL_PLUGIN_NAME );
+		this.uiComponent = new TaskViewUI( );
 	}
 
 	@Override
 	public IPluginUIComponent getUIComponent( )
 	{
-		// TODO Auto-generated method stub
-		return null;//new JButton( "Performance" );
+		return this.uiComponent;
 	}
 
 	@Override
 	public boolean onStarted( )
 	{
 		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 
 	@Override
 	public boolean onRegistered( IPluginAccess pluginAccess )
 	{
 		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 
 	@Override
 	public void onLogStreamOpened( )
-	{
-		// TODO Auto-generated method stub
-
-	}
+	{}
 
 	@Override
 	public void onPrepareCloseLogStream( )
-	{
-		// TODO Auto-generated method stub
-
-	}
+	{}
 
 	@Override
 	public void onLogStreamClosed( )
@@ -108,22 +103,20 @@ public class PerformanceMonitor extends Plugin
 
 	@Override
 	public void onNewLine( LogLine line )
-	{
-		// TODO Auto-generated method stub
-
-	}
+	{}
 
 	@Override
 	public void onNewBlockOfLines( List<LogLine> blockOfLines )
 	{
 		// TODO Auto-generated method stub
-
+		//for ( LogLine ll : blockOfLines )
+		//System.out.println( ll.getData( ) );
 	}
 
 	@Override
 	public Pattern getLineFilter( )
 	{
-		return Pattern.compile( ".*" );
+		return Pattern.compile( ".*_TSK\\].*" );
 	}
 
 	protected Logger LOG( )
@@ -164,4 +157,5 @@ public class PerformanceMonitor extends Plugin
 		// TODO Auto-generated method stub
 		return 0;
 	}
+
 }

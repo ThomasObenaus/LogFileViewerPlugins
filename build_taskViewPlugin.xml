@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 
-<project name="thobe.logFileViewer.plugins.taskView" basedir="." default="create-jar">
+<project name="thobe.logfileviewer.plugins.taskView" basedir="." default="create-jar">
 
 	<!-- [init] - task for setup of initial properties -->
 	<target name="init">
@@ -45,8 +45,8 @@
 		<!-- copy files -->
 		<copy toDir="${TV.sourceTemp}/">
 			<fileset dir="${TV.eclipse.src.dir}">
-				<include name="thobe/logfileViewer/plugins/taskView/**/*.java" />
-				<include name="thobe/logfileViewer/plugins/taskView/**/*.properties" />							
+				<include name="thobe/logfileviewer/plugins/taskView/**/*.java" />
+				<include name="thobe/logfileviewer/plugins/taskView/**/*.properties" />							
 				<exclude name="playground/**" />
 				<exclude name="testing/**" />
 			</fileset>
@@ -73,10 +73,10 @@
 		<!-- copy files from build dir -->
 		<copy toDir="${TV.jar.dir}/">
 			<fileset dir="${TV.eclipse.build.dir}">
-				<include name="thobe/logfileViewer/plugins/taskView/**/*.class" />
-				<include name="thobe/logfileViewer/plugins/taskView/**/*.properties" />
-				<include name="thobe/logfileViewer/plugins/taskView/**/*.gif" />
-				<include name="thobe/logfileViewer/plugins/taskView/**/*.png" />						
+				<include name="thobe/logfileviewer/plugins/taskView/**/*.class" />
+				<include name="thobe/logfileviewer/plugins/taskView/**/*.properties" />
+				<include name="thobe/logfileviewer/plugins/taskView/**/*.gif" />
+				<include name="thobe/logfileviewer/plugins/taskView/**/*.png" />						
 				<exclude name="**/*.jar" />
 				<exclude name="playground/**" />
 				<exclude name="testing/**" />

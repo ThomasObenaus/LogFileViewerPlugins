@@ -8,7 +8,7 @@
  *  Project:    LogFileViewer
  */
 
-package thobe.logfileViewer.plugins.taskView;
+package thobe.logfileviewer.plugins.taskView;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;

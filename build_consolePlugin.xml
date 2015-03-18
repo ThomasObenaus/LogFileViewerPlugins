@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 
-<project name="thobe.logFileViewer.plugins.console" basedir="." default="create-jar">
+<project name="thobe.logfileviewer.plugins.console" basedir="." default="create-jar">
 
 	<!-- [init] - task for setup of initial properties -->
 	<target name="init">
@@ -45,8 +45,8 @@
 		<!-- copy files -->
 		<copy toDir="${CP.sourceTemp}/">
 			<fileset dir="${CP.eclipse.src.dir}">
-				<include name="thobe/logfileViewer/plugins/console/**/*.java" />
-				<include name="thobe/logfileViewer/plugins/console/**/*.properties" />							
+				<include name="thobe/logfileviewer/plugins/console/**/*.java" />
+				<include name="thobe/logfileviewer/plugins/console/**/*.properties" />							
 				<exclude name="playground/**" />
 				<exclude name="testing/**" />
 			</fileset>
@@ -73,10 +73,10 @@
 		<!-- copy files from build dir -->
 		<copy toDir="${CP.jar.dir}/">
 			<fileset dir="${CP.eclipse.build.dir}">
-				<include name="thobe/logfileViewer/plugins/console/**/*.class" />
-				<include name="thobe/logfileViewer/plugins/console/**/*.properties" />
-				<include name="thobe/logfileViewer/plugins/console/**/*.gif" />
-				<include name="thobe/logfileViewer/plugins/console/**/*.png" />						
+				<include name="thobe/logfileviewer/plugins/console/**/*.class" />
+				<include name="thobe/logfileviewer/plugins/console/**/*.properties" />
+				<include name="thobe/logfileviewer/plugins/console/**/*.gif" />
+				<include name="thobe/logfileviewer/plugins/console/**/*.png" />						
 				<exclude name="**/*.jar" />
 				<exclude name="playground/**" />
 				<exclude name="testing/**" />

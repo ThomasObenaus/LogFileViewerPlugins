@@ -8,7 +8,7 @@
  *  Project:    LogFileViewer
  */
 
-package thobe.logfileViewer.plugins.console;
+package thobe.logfileviewer.plugins.console;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -53,16 +53,16 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 
-import thobe.logfileViewer.plugins.console.events.CEvtClear;
-import thobe.logfileViewer.plugins.console.events.CEvt_Scroll;
-import thobe.logfileViewer.plugins.console.events.CEvt_ScrollToLast;
-import thobe.logfileViewer.plugins.console.events.CEvt_SetAutoScrollMode;
-import thobe.logfileViewer.plugins.console.events.ConsoleEvent;
 import thobe.logfileviewer.kernel.plugin.IPluginUI;
 import thobe.logfileviewer.kernel.plugin.IPluginUIComponent;
 import thobe.logfileviewer.kernel.source.logline.LogLine;
 import thobe.logfileviewer.kernel.util.FontHelper;
 import thobe.logfileviewer.kernel.util.SizeOf;
+import thobe.logfileviewer.plugins.console.events.CEvtClear;
+import thobe.logfileviewer.plugins.console.events.CEvt_Scroll;
+import thobe.logfileviewer.plugins.console.events.CEvt_ScrollToLast;
+import thobe.logfileviewer.plugins.console.events.CEvt_SetAutoScrollMode;
+import thobe.logfileviewer.plugins.console.events.ConsoleEvent;
 import thobe.widgets.buttons.SmallButton;
 import thobe.widgets.textfield.RestrictedTextFieldAdapter;
 import thobe.widgets.textfield.RestrictedTextFieldRegexp;
