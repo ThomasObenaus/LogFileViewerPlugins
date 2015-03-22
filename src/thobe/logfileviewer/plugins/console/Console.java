@@ -21,6 +21,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 import thobe.logfileviewer.plugin.Plugin;
+import thobe.logfileviewer.plugin.api.IConsole;
 import thobe.logfileviewer.plugin.api.IPlugin;
 import thobe.logfileviewer.plugin.api.IPluginAccess;
 import thobe.logfileviewer.plugin.api.IPluginUI;
@@ -36,7 +37,7 @@ import thobe.logfileviewer.plugins.console.events.ConsoleEvent;
  * @source Console.java
  * @date May 29, 2014
  */
-public class Console extends Plugin implements ISubConsoleFactoryAccess
+public class Console extends Plugin implements ISubConsoleFactoryAccess, IConsole
 {
 	private static final int			MAJOR_VERSION				= 0;
 	private static final int			MINOR_VERSION				= 9;
