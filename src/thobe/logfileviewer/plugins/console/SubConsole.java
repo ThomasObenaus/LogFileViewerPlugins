@@ -53,11 +53,11 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 
-import thobe.logfileviewer.kernel.plugin.IPluginUI;
-import thobe.logfileviewer.kernel.plugin.IPluginUIComponent;
-import thobe.logfileviewer.kernel.source.logline.LogLine;
-import thobe.logfileviewer.kernel.util.FontHelper;
-import thobe.logfileviewer.kernel.util.SizeOf;
+import thobe.logfileviewer.plugin.api.IPluginUI;
+import thobe.logfileviewer.plugin.api.IPluginUIComponent;
+import thobe.logfileviewer.plugin.source.logline.ILogLine;
+import thobe.logfileviewer.plugin.util.FontHelper;
+import thobe.logfileviewer.plugin.util.SizeOf;
 import thobe.logfileviewer.plugins.console.events.CEvtClear;
 import thobe.logfileviewer.plugins.console.events.CEvt_Scroll;
 import thobe.logfileviewer.plugins.console.events.CEvt_ScrollToLast;
@@ -113,7 +113,7 @@ public class SubConsole extends Thread implements ConsoleDataListener, IPluginUI
 	/**
 	 * Queue containing all incoming {@link LogLine}s
 	 */
-	private Deque<LogLine>				lineBuffer;
+	private Deque<ILogLine>				lineBuffer;
 
 	/**
 	 * The internal {@link TableModel}
@@ -449,7 +449,7 @@ public class SubConsole extends Thread implements ConsoleDataListener, IPluginUI
 	@Override
 	public void run( )
 	{
-		List<LogLine> block = new ArrayList<>( );
+		List<ILogLine> block = new ArrayList<>( );
 		while ( !this.isQuitRequested( ) )
 		{
 			// process next event from the event-queue
@@ -471,7 +471,7 @@ public class SubConsole extends Thread implements ConsoleDataListener, IPluginUI
 			{
 				while ( ( !this.lineBuffer.isEmpty( ) ) && !timeThresholdHurt && !blockSizeThresholdHurt )
 				{
-					LogLine ll = this.lineBuffer.pollFirst( );
+					ILogLine ll = this.lineBuffer.pollFirst( );
 					// add only matching lines
 					if ( matches( this.linePattern, ll.getData( ) ) )
 					{
@@ -577,7 +577,7 @@ public class SubConsole extends Thread implements ConsoleDataListener, IPluginUI
 	public long getCurrentMemory( )
 	{
 		long memInLineBuffer = 0;
-		for ( LogLine ll : this.lineBuffer )
+		for ( ILogLine ll : this.lineBuffer )
 			memInLineBuffer += ll.getMemory( ) + SizeOf.REFERENCE + SizeOf.HOUSE_KEEPING_ARRAY;
 		long memInEventQueue = this.scrollEventQueue.size( ) * SizeOf.REFERENCE * SizeOf.HOUSE_KEEPING;
 		memInEventQueue += SizeOf.REFERENCE + SizeOf.HOUSE_KEEPING_ARRAY;
@@ -681,7 +681,7 @@ public class SubConsole extends Thread implements ConsoleDataListener, IPluginUI
 	}
 
 	@Override
-	public void onNewData( List<LogLine> blockOfLines )
+	public void onNewData( List<ILogLine> blockOfLines )
 	{
 		this.lineBuffer.addAll( blockOfLines );
 		this.eventSemaphore.release( );

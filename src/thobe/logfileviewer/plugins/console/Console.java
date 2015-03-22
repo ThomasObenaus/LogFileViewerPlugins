@@ -20,13 +20,13 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
-import thobe.logfileviewer.kernel.plugin.IPlugin;
-import thobe.logfileviewer.kernel.plugin.IPluginAccess;
-import thobe.logfileviewer.kernel.plugin.IPluginUI;
-import thobe.logfileviewer.kernel.plugin.IPluginUIComponent;
-import thobe.logfileviewer.kernel.plugin.Plugin;
-import thobe.logfileviewer.kernel.source.logline.LogLine;
-import thobe.logfileviewer.kernel.util.SizeOf;
+import thobe.logfileviewer.plugin.Plugin;
+import thobe.logfileviewer.plugin.api.IPlugin;
+import thobe.logfileviewer.plugin.api.IPluginAccess;
+import thobe.logfileviewer.plugin.api.IPluginUI;
+import thobe.logfileviewer.plugin.api.IPluginUIComponent;
+import thobe.logfileviewer.plugin.source.logline.ILogLine;
+import thobe.logfileviewer.plugin.util.SizeOf;
 import thobe.logfileviewer.plugins.console.events.CEvt_DestroySubConsole;
 import thobe.logfileviewer.plugins.console.events.ConsoleEvent;
 
@@ -61,7 +61,7 @@ public class Console extends Plugin implements ISubConsoleFactoryAccess
 	/**
 	 * Queue containing all incoming {@link LogLine}s
 	 */
-	private Deque<LogLine>				lineBuffer;
+	private Deque<ILogLine>				lineBuffer;
 
 	/**
 	 * The {@link IPluginUIComponent} (returned by {@link IPluginUI#getUIComponent()}.
@@ -209,7 +209,7 @@ public class Console extends Plugin implements ISubConsoleFactoryAccess
 	@Override
 	public void run( )
 	{
-		List<LogLine> block = new ArrayList<>( );
+		List<ILogLine> block = new ArrayList<>( );
 		while ( !this.isQuitRequested( ) )
 		{
 			// process misc events
@@ -225,7 +225,7 @@ public class Console extends Plugin implements ISubConsoleFactoryAccess
 			{
 				while ( ( !this.lineBuffer.isEmpty( ) ) && !timeThresholdHurt && !blockSizeThresholdHurt )
 				{
-					LogLine ll = this.lineBuffer.pollFirst( );
+					ILogLine ll = this.lineBuffer.pollFirst( );
 					block.add( ll );
 					blockSizeThresholdHurt = block.size( ) > MAX_LINES_PER_BLOCK;
 					timeThresholdHurt = ( System.currentTimeMillis( ) - startTime ) > MAX_TIME_PER_BLOCK_IN_MS;
@@ -249,7 +249,7 @@ public class Console extends Plugin implements ISubConsoleFactoryAccess
 		}// while ( !this.isQuitRequested( ) ).
 	}
 
-	private void fireNewBlockOfLogLines( List<LogLine> block )
+	private void fireNewBlockOfLogLines( List<ILogLine> block )
 	{
 		synchronized ( this.consoleDataListeners )
 		{
@@ -295,7 +295,7 @@ public class Console extends Plugin implements ISubConsoleFactoryAccess
 	}
 
 	@Override
-	public void onNewLine( LogLine line )
+	public void onNewLine( ILogLine line )
 	{
 		this.lineBuffer.add( line );
 		this.eventSemaphore.release( );
@@ -308,7 +308,7 @@ public class Console extends Plugin implements ISubConsoleFactoryAccess
 	}
 
 	@Override
-	public void onNewBlockOfLines( List<LogLine> blockOfLines )
+	public void onNewBlockOfLines( List<ILogLine> blockOfLines )
 	{
 		this.lineBuffer.addAll( blockOfLines );
 		this.eventSemaphore.release( );
@@ -349,7 +349,7 @@ public class Console extends Plugin implements ISubConsoleFactoryAccess
 	public long getMemory( )
 	{
 		long memInLineBuffer = 0;
-		for ( LogLine ll : this.lineBuffer )
+		for ( ILogLine ll : this.lineBuffer )
 			memInLineBuffer += ll.getMemory( ) + SizeOf.REFERENCE + SizeOf.HOUSE_KEEPING_ARRAY;
 		long memInEventQueue = this.eventQueue.size( ) * SizeOf.REFERENCE * SizeOf.HOUSE_KEEPING;
 

@@ -85,7 +85,7 @@
 
 		<echo message="Extract referenced libraries." />		
 		<unzip src="${TV.eclipse.lib.dir}/widgets.jar" dest="${TV.jar.dir}" />
-		<unzip src="${TV.eclipse.lib.dir}/thobe.logFileViewer.plugin.api.jar" dest="${TV.jar.dir}" />
+		<unzip src="${TV.eclipse.lib.dir}/thobe.logfileviewer.plugin.api.jar" dest="${TV.jar.dir}" />
 
 		<!-- create jar-file -->
 		<echo message="Create jar-file /${TV.jar.dir}/${TV.jarName}." />

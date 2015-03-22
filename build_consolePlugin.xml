@@ -85,7 +85,7 @@
 
 		<echo message="Extract referenced libraries." />		
 		<unzip src="${CP.eclipse.lib.dir}/widgets.jar" dest="${CP.jar.dir}" />
-		<unzip src="${CP.eclipse.lib.dir}/thobe.logFileViewer.plugin.api.jar" dest="${CP.jar.dir}" />
+		<unzip src="${CP.eclipse.lib.dir}/thobe.logfileviewer.plugin.api.jar" dest="${CP.jar.dir}" />
 
 		<!-- create jar-file -->
 		<echo message="Create jar-file /${CP.jar.dir}/${CP.jarName}." />

@@ -13,7 +13,7 @@ package thobe.logfileviewer.plugins.taskView;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
-import thobe.logfileviewer.kernel.plugin.IPluginUIComponent;
+import thobe.logfileviewer.plugin.api.IPluginUIComponent;
 
 /**
  * @author Thomas Obenaus
@@ -34,14 +34,14 @@ public class TaskViewUI extends JPanel implements IPluginUIComponent
 	public void onClosing( )
 	{
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void onClosed( )
 	{
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
@@ -63,5 +63,3 @@ public class TaskViewUI extends JPanel implements IPluginUIComponent
 	}
 
 }
-
-

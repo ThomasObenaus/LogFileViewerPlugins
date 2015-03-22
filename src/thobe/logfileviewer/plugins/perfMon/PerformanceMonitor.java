@@ -14,10 +14,10 @@ import java.util.List;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
-import thobe.logfileviewer.kernel.plugin.IPluginAccess;
-import thobe.logfileviewer.kernel.plugin.IPluginUIComponent;
-import thobe.logfileviewer.kernel.plugin.Plugin;
-import thobe.logfileviewer.kernel.source.logline.LogLine;
+import thobe.logfileviewer.plugin.Plugin;
+import thobe.logfileviewer.plugin.api.IPluginAccess;
+import thobe.logfileviewer.plugin.api.IPluginUIComponent;
+import thobe.logfileviewer.plugin.source.logline.ILogLine;
 
 /**
  * @author Thomas Obenaus
@@ -107,14 +107,14 @@ public class PerformanceMonitor extends Plugin
 	}
 
 	@Override
-	public void onNewLine( LogLine line )
+	public void onNewLine( ILogLine line )
 	{
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
-	public void onNewBlockOfLines( List<LogLine> blockOfLines )
+	public void onNewBlockOfLines( List<ILogLine> blockOfLines )
 	{
 		// TODO Auto-generated method stub
 

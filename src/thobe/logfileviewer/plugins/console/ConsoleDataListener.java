@@ -12,7 +12,7 @@ package thobe.logfileviewer.plugins.console;
 
 import java.util.List;
 
-import thobe.logfileviewer.kernel.source.logline.LogLine;
+import thobe.logfileviewer.plugin.source.logline.ILogLine;
 
 /**
  * @author Thomas Obenaus
@@ -21,7 +21,7 @@ import thobe.logfileviewer.kernel.source.logline.LogLine;
  */
 public interface ConsoleDataListener
 {
-	public void onNewData( List<LogLine> blockOfLines );
+	public void onNewData( List<ILogLine> blockOfLines );
 
 	public void freeMemory( );
 

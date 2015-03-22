@@ -20,8 +20,8 @@ import java.util.regex.PatternSyntaxException;
 
 import javax.swing.table.AbstractTableModel;
 
-import thobe.logfileviewer.kernel.source.logline.LogLine;
-import thobe.logfileviewer.kernel.util.SizeOf;
+import thobe.logfileviewer.plugin.source.logline.ILogLine;
+import thobe.logfileviewer.plugin.util.SizeOf;
 
 /**
  * @author Thomas Obenaus
@@ -37,7 +37,7 @@ public class ConsoleTableModel extends AbstractTableModel
 	private static long		BYTES_FOR_ONE_TABLE_ENTRY	= 2048;
 	private static String	columnNames[]				= new String[]
 														{ "LineNo", "Time", "Entry" };
-	private List<LogLine>	entries;
+	private List<ILogLine>	entries;
 	private long			memory;
 	private int				maxNumberOfConsoleEntries;
 	private int				linesToRemoveOnReachingMaxNumberOfConsoleEntries;
@@ -80,7 +80,7 @@ public class ConsoleTableModel extends AbstractTableModel
 		}// if ( this.entries.size( ) >= this.maxNumberOfConsoleEntries ) .
 	}
 
-	public synchronized void addLine( LogLine line )
+	public synchronized void addLine( ILogLine line )
 	{
 		int rows = this.entries.size( );
 		this.entries.add( line );
@@ -127,7 +127,7 @@ public class ConsoleTableModel extends AbstractTableModel
 		return "";
 	}
 
-	public synchronized void addBlock( List<LogLine> block )
+	public synchronized void addBlock( List<ILogLine> block )
 	{
 		if ( !block.isEmpty( ) )
 		{
@@ -136,7 +136,7 @@ public class ConsoleTableModel extends AbstractTableModel
 			this.fireTableRowsInserted( rows, rows + block.size( ) - 1 );
 
 			// collect mem-information
-			for ( LogLine l : block )
+			for ( ILogLine l : block )
 				this.memory += l.getMemory( ) + SizeOf.REFERENCE + BYTES_FOR_ONE_TABLE_ENTRY;
 		}// if ( !block.isEmpty( ) ) .
 	}
@@ -179,7 +179,7 @@ public class ConsoleTableModel extends AbstractTableModel
 		if ( this.entries.size( ) <= row )
 			return null;
 
-		LogLine line = this.entries.get( row );
+		ILogLine line = this.entries.get( row );
 
 		if ( col == 0 )
 			return line.getId( );

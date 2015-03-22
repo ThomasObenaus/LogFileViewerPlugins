@@ -7,9 +7,19 @@
 			<attribute name="javadoc_location" value="jar:platform:/resource/Plugins/libs/widgets_doc.zip!/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="libs/thobe.logFileViewer.plugin.api.jar" sourcepath="libs/thobe.logFileViewer.plugin.api_src.zip">
+	<classpathentry kind="lib" path="libs/thobe.logfileviewer.plugin.api.jar" sourcepath="libs/thobe.logfileviewer.plugin.api_src.zip">
 		<attributes>
-			<attribute name="javadoc_location" value="jar:platform:/resource/Plugins/libs/thobe.logFileViewer.plugin.api_doc.zip!/"/>
+			<attribute name="javadoc_location" value="jar:platform:/resource/Plugins/libs/thobe.logfileviewer.plugin.api_doc.zip!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="libs/jgoodies-forms-1.8.0/jgoodies-forms-1.8.0.jar" sourcepath="libs/jgoodies-forms-1.8.0/jgoodies-forms-1.8.0-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/Plugins/libs/jgoodies-forms-1.8.0/jgoodies-forms-1.8.0-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="libs/jgoodies-common-1.8.0/jgoodies-common-1.8.0.jar" sourcepath="libs/jgoodies-common-1.8.0/jgoodies-common-1.8.0-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/Plugins/libs/jgoodies-common-1.8.0/jgoodies-common-1.8.0-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
