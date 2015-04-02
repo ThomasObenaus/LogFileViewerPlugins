@@ -24,6 +24,7 @@ import thobe.logfileviewer.plugin.Plugin;
 import thobe.logfileviewer.plugin.api.IConsole;
 import thobe.logfileviewer.plugin.api.IPlugin;
 import thobe.logfileviewer.plugin.api.IPluginAccess;
+import thobe.logfileviewer.plugin.api.IPluginPreferences;
 import thobe.logfileviewer.plugin.api.IPluginUI;
 import thobe.logfileviewer.plugin.api.IPluginUIComponent;
 import thobe.logfileviewer.plugin.source.logline.ILogLine;
@@ -40,7 +41,7 @@ import thobe.logfileviewer.plugins.console.events.ConsoleEvent;
 public class Console extends Plugin implements ISubConsoleFactoryAccess, IConsole
 {
 	private static final int			MAJOR_VERSION				= 0;
-	private static final int			MINOR_VERSION				= 9;
+	private static final int			MINOR_VERSION				= 10;
 	private static final int			BUGFIX_VERSION				= 0;
 
 	public static final String			FULL_PLUGIN_NAME			= "thobe.logfileviewer.plugin.Console";
@@ -78,9 +79,12 @@ public class Console extends Plugin implements ISubConsoleFactoryAccess, IConsol
 
 	private Pattern						pattern;
 
+	private ConsolePreferences			preferences;
+
 	public Console( )
 	{
 		super( FULL_PLUGIN_NAME, FULL_PLUGIN_NAME );
+		this.preferences = new ConsolePreferences( LOG( ) );
 		this.pattern = Pattern.compile( ".*" );
 		this.eventSemaphore = new Semaphore( 1, true );
 		this.lineBuffer = new ConcurrentLinkedDeque<>( );
@@ -426,4 +430,11 @@ public class Console extends Plugin implements ISubConsoleFactoryAccess, IConsol
 	{
 		return BUGFIX_VERSION;
 	}
+
+	@Override
+	public IPluginPreferences getPluginPreferences( )
+	{
+		return this.preferences;
+	}
+
 }
