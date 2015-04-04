@@ -41,7 +41,7 @@ import thobe.logfileviewer.plugins.console.events.ConsoleEvent;
 public class Console extends Plugin implements ISubConsoleFactoryAccess, IConsole
 {
 	private static final int			MAJOR_VERSION				= 0;
-	private static final int			MINOR_VERSION				= 10;
+	private static final int			MINOR_VERSION				= 11;
 	private static final int			BUGFIX_VERSION				= 0;
 
 	public static final String			FULL_PLUGIN_NAME			= "thobe.logfileviewer.plugin.Console";
@@ -437,4 +437,27 @@ public class Console extends Plugin implements ISubConsoleFactoryAccess, IConsol
 		return this.preferences;
 	}
 
+	@Override
+	public String getPluginAuthor( )
+	{
+		return "Thomas Obenaus";
+	}
+
+	@Override
+	public String getPluginAuthorEMailAddress( )
+	{
+		return "obenaus.thomas@gmail.com";
+	}
+
+	@Override
+	public String getPluginWebsite( )
+	{
+		return "https://github.com/ThomasObenaus/LogFileViewerPlugins/wiki/Console-Plugin";
+	}
+
+	@Override
+	public String getPluginLicense( )
+	{
+		return "Copyright (C) 2014, Thomas Obenaus. All rights reserved. Licensed under the New BSD License (3-clause lic) See attached license-file.";
+	}
 }
