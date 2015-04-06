@@ -41,7 +41,7 @@ import thobe.logfileviewer.plugins.console.events.ConsoleEvent;
 public class Console extends Plugin implements ISubConsoleFactoryAccess, IConsole
 {
 	private static final int			MAJOR_VERSION				= 0;
-	private static final int			MINOR_VERSION				= 11;
+	private static final int			MINOR_VERSION				= 12;
 	private static final int			BUGFIX_VERSION				= 0;
 
 	public static final String			FULL_PLUGIN_NAME			= "thobe.logfileviewer.plugin.Console";
