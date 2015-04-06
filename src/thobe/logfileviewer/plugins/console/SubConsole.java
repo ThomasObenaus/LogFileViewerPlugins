@@ -46,6 +46,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JToggleButton;
 import javax.swing.SwingUtilities;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
@@ -145,7 +146,7 @@ public class SubConsole extends Thread implements ConsoleDataListener, IPluginUI
 
 	private JButton						bu_clear;
 	private JButton						bu_settings;
-	private JButton						bu_enableAutoScroll;
+	private JToggleButton				bu_enableAutoScroll;
 	private JButton						bu_createFilter;
 
 	private JLabel						l_statusline;
@@ -297,7 +298,7 @@ public class SubConsole extends Thread implements ConsoleDataListener, IPluginUI
 		JPanel pa_buttons = new JPanel( new FlowLayout( FlowLayout.RIGHT, 0, 0 ) );
 		pa_settings.add( pa_buttons, cc_settings.xy( 10, 2 ) );
 
-		this.bu_enableAutoScroll = new JButton( C_IconLib.get( ).getIcon( C_IconType.SCROLL_LOCK, true, IconSize.S16x16 ) );
+		this.bu_enableAutoScroll = new JToggleButton( C_IconLib.get( ).getIcon( C_IconType.SCROLL_LOCK, true, IconSize.S16x16 ), true );
 		pa_buttons.add( this.bu_enableAutoScroll );
 		this.bu_enableAutoScroll.addActionListener( new ActionListener( )
 		{
@@ -545,6 +546,7 @@ public class SubConsole extends Thread implements ConsoleDataListener, IPluginUI
 				case SET_AUTOSCROLL_MODE:
 					boolean prefAutoScrollValue = this.autoScrollingEnabled;
 					this.autoScrollingEnabled = ( ( CEvt_SetAutoScrollMode ) evt ).isEnable( );
+					this.bu_enableAutoScroll.setSelected( this.autoScrollingEnabled );
 
 					// scroll to last only if the autoscrolling was toggled to true
 					hasScrollToLast = ( this.autoScrollingEnabled && ( prefAutoScrollValue != this.autoScrollingEnabled ) );

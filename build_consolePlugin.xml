@@ -7,7 +7,7 @@
 		<echo message="Initial setup" />
 
 		<!-- set version here -->
-		<property name="CP.Program-Version" value="0.11.0" />
+		<property name="CP.Program-Version" value="0.12.0" />
 		<!-- set main-class here or uncomment line if u build a library -->		
 		<!-- set licence here -->
 		<property name="CP.License" value="Licensed under the New BSD License (3-clause lic)" />
