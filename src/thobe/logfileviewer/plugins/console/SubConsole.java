@@ -40,6 +40,7 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 import javax.swing.DefaultCellEditor;
+import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -63,7 +64,9 @@ import thobe.logfileviewer.plugins.console.events.CEvt_Scroll;
 import thobe.logfileviewer.plugins.console.events.CEvt_ScrollToLast;
 import thobe.logfileviewer.plugins.console.events.CEvt_SetAutoScrollMode;
 import thobe.logfileviewer.plugins.console.events.ConsoleEvent;
-import thobe.widgets.buttons.SmallButton;
+import thobe.logfileviewer.plugins.console.icons.C_IconLib;
+import thobe.logfileviewer.plugins.console.icons.C_IconType;
+import thobe.widgets.icons.IconSize;
 import thobe.widgets.textfield.RestrictedTextFieldAdapter;
 import thobe.widgets.textfield.RestrictedTextFieldRegexp;
 
@@ -140,10 +143,10 @@ public class SubConsole extends Thread implements ConsoleDataListener, IPluginUI
 	 */
 	private Semaphore					eventSemaphore;
 
-	private SmallButton					bu_clear;
-	private SmallButton					bu_settings;
-	private SmallButton					bu_enableAutoScroll;
-	private SmallButton					bu_createFilter;
+	private JButton						bu_clear;
+	private JButton						bu_settings;
+	private JButton						bu_enableAutoScroll;
+	private JButton						bu_createFilter;
 
 	private JLabel						l_statusline;
 
@@ -226,7 +229,7 @@ public class SubConsole extends Thread implements ConsoleDataListener, IPluginUI
 		this.ta_logTable.setAutoResizeMode( JTable.AUTO_RESIZE_OFF );
 
 		CellConstraints cc_settings = new CellConstraints( );
-		JPanel pa_settings = new JPanel( new FormLayout( "3dlu,fill:default,10dlu,default,1dlu,default,0dlu,10dlu,default:grow,default,3dlu", "3dlu,pref,3dlu" ) );
+		JPanel pa_settings = new JPanel( new FormLayout( "3dlu,fill:default,10dlu,default,1dlu,default,0dlu,16dlu,default:grow,default,3dlu", "3dlu,pref,3dlu" ) );
 		this.pa_logPanel.add( pa_settings, BorderLayout.NORTH );
 
 		this.l_statusline = new JLabel( "Lines: 0/" + this.tableModel.getMaxNumberOfConsoleEntries( ) );
@@ -278,7 +281,7 @@ public class SubConsole extends Thread implements ConsoleDataListener, IPluginUI
 			};
 		} );
 
-		this.bu_createFilter = new SmallButton( ">" );
+		this.bu_createFilter = new JButton( C_IconLib.get( ).getIcon( C_IconType.CREATE_FILTER, true, IconSize.S16x16 ) );
 		pa_settings.add( bu_createFilter, cc_settings.xy( 8, 2 ) );
 		this.bu_createFilter.addActionListener( new ActionListener( )
 		{
@@ -294,7 +297,7 @@ public class SubConsole extends Thread implements ConsoleDataListener, IPluginUI
 		JPanel pa_buttons = new JPanel( new FlowLayout( FlowLayout.RIGHT, 0, 0 ) );
 		pa_settings.add( pa_buttons, cc_settings.xy( 10, 2 ) );
 
-		this.bu_enableAutoScroll = new SmallButton( "Autoscroll" );
+		this.bu_enableAutoScroll = new JButton( C_IconLib.get( ).getIcon( C_IconType.SCROLL_LOCK, true, IconSize.S16x16 ) );
 		pa_buttons.add( this.bu_enableAutoScroll );
 		this.bu_enableAutoScroll.addActionListener( new ActionListener( )
 		{
@@ -305,7 +308,7 @@ public class SubConsole extends Thread implements ConsoleDataListener, IPluginUI
 			}
 		} );
 
-		this.bu_clear = new SmallButton( "clear" );
+		this.bu_clear = new JButton( C_IconLib.get( ).getIcon( C_IconType.CLEAR, true, IconSize.S16x16 ) );
 		pa_buttons.add( this.bu_clear );
 		this.bu_clear.addActionListener( new ActionListener( )
 		{
@@ -316,7 +319,7 @@ public class SubConsole extends Thread implements ConsoleDataListener, IPluginUI
 			}
 		} );
 
-		this.bu_settings = new SmallButton( "Settings" );
+		this.bu_settings = new JButton( C_IconLib.get( ).getIcon( C_IconType.SETTINGS, true, IconSize.S16x16 ) );
 		pa_buttons.add( this.bu_settings );
 
 		// adjust column-sizes

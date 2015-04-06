@@ -146,7 +146,11 @@ public class ConsoleTableModel extends AbstractTableModel
 		int lastRow = this.entries.size( );
 		this.entries.clear( );
 		this.memory = 0;
-		this.fireTableRowsDeleted( 0, lastRow - 1 );
+
+		if ( lastRow > 0 )
+		{
+			this.fireTableRowsDeleted( 0, lastRow - 1 );
+		}
 	}
 
 	@Override

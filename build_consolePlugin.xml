@@ -46,7 +46,8 @@
 		<copy toDir="${CP.sourceTemp}/">
 			<fileset dir="${CP.eclipse.src.dir}">
 				<include name="thobe/logfileviewer/plugins/console/**/*.java" />
-				<include name="thobe/logfileviewer/plugins/console/**/*.properties" />							
+				<include name="thobe/logfileviewer/plugins/console/**/*.properties" />
+				<include name="thobe/logfileviewer/plugins/console/**/*.png" />							
 				<exclude name="playground/**" />
 				<exclude name="testing/**" />
 			</fileset>
