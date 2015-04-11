@@ -189,7 +189,7 @@ public class SubConsole extends Thread implements ConsoleDataListener, IPluginUI
 	public SubConsole( String parentConsolePattern, String pattern, ISubConsoleFactoryAccess subConsoleFactoryAccess, Logger log, boolean closeable )
 	{
 		this.closeable = closeable;
-		this.currentMaxPrefWidth = new AtomicInteger( 0 );
+		this.currentMaxPrefWidth = new AtomicInteger( 0 ); 
 		this.linePattern = Pattern.compile( pattern );
 		this.parentConsolePattern = parentConsolePattern;
 
