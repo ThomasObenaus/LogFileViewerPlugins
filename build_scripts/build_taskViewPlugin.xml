@@ -16,43 +16,16 @@
 		<property name="TV.Contact" value="obenaus.thomas@gmail.com" />
 
 		<!-- don't change these properties -->
-		<property name="TV.eclipse.build.dir" value="bin" />
-		<property name="TV.eclipse.src.dir" value="src" />
-		<property name="TV.eclipse.lib.dir" value="libs" />
+		<property name="TV.eclipse.build.dir" value="../bin" />
+		<property name="TV.eclipse.src.dir" value="../src" />
+		<property name="TV.eclipse.lib.dir" value="../libs" />
 
-		<property name="TV.jar.dir" value="jar" />
-		<property name="TV.apiDocZip" value="${ant.project.name}_doc.zip" />
-		<property name="TV.sourceZip" value="${ant.project.name}_src.zip" />
-		<property name="TV.sourceTemp" value="_src_tmp" />
+		<property name="TV.jar.dir" value="../jar" />
 		<property name="TV.jarName" value="${ant.project.name}.jar" />
 
 		<tstamp>
 			<format property="TV.creation-date" pattern="YYYY-MM-DD zzz" locale="de,DE" />
 		</tstamp>
-	</target>
-
-	<!-- [create-doc] create api-doc, build/pack zip-file <project-name>_doc.zip -->
-	<target name="create-doc" depends="init">
-		<echo message="Create and zip API-Doc" />
-		<ant antfile="doc/jd_taskView.xml" dir="" />
-		<zip destfile="${TV.apiDocZip}" basedir="doc/taskView" />
-	</target>
-
-	<!-- [create-src] zipps the source-code into a zip-file -->
-	<target name="create-src" depends="init">
-		<echo message="Copy source-files and zip them" />
-		<mkdir dir="${TV.sourceTemp}" />
-		<!-- copy files -->
-		<copy toDir="${TV.sourceTemp}/">
-			<fileset dir="${TV.eclipse.src.dir}">
-				<include name="thobe/logfileviewer/plugins/taskView/**/*.java" />
-				<include name="thobe/logfileviewer/plugins/taskView/**/*.properties" />							
-				<exclude name="playground/**" />
-				<exclude name="testing/**" />
-			</fileset>
-		</copy>
-		<zip destfile="${TV.sourceZip}" basedir="${TV.sourceTemp}" />
-		<delete dir="${TV.sourceTemp}" />
 	</target>
 
 	<!-- [clean] delete temp folder "jar" -->
@@ -104,12 +77,12 @@
 
 		<!-- copy jar-file to projet dir -->
 		<echo message="copy ${TV.jar.dir}/${TV.jarName} into project-directory" />
-		<copy file="${TV.jar.dir}/${TV.jarName}" todir="." />
+		<copy file="${TV.jar.dir}/${TV.jarName}" todir="../." />
 
 		<!-- clean temp jar dir -->
 		<antcall target="clean">
 		</antcall>
 	</target>
 
-	<target name="create-all" depends="clean,create-src,create-doc,create-jar"/>
+	<target name="create-all" depends="clean,create-jar"/>
 </project>

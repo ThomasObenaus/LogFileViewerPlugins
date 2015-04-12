@@ -16,44 +16,16 @@
 		<property name="CP.Contact" value="obenaus.thomas@gmail.com" />
 
 		<!-- don't change these properties -->
-		<property name="CP.eclipse.build.dir" value="bin" />
-		<property name="CP.eclipse.src.dir" value="src" />
-		<property name="CP.eclipse.lib.dir" value="libs" />
+		<property name="CP.eclipse.build.dir" value="../bin" />
+		<property name="CP.eclipse.src.dir" value="../src" />
+		<property name="CP.eclipse.lib.dir" value="../libs" />
 
-		<property name="CP.jar.dir" value="jar" />
-		<property name="CP.apiDocZip" value="${ant.project.name}_doc.zip" />
-		<property name="CP.sourceZip" value="${ant.project.name}_src.zip" />
-		<property name="CP.sourceTemp" value="_src_tmp" />
+		<property name="CP.jar.dir" value="../jar" />
 		<property name="CP.jarName" value="${ant.project.name}.jar" />
 
 		<tstamp>
 			<format property="CP.creation-date" pattern="YYYY-MM-DD zzz" locale="de,DE" />
 		</tstamp>
-	</target>
-
-	<!-- [create-doc] create api-doc, build/pack zip-file <project-name>_doc.zip -->
-	<target name="create-doc" depends="init">
-		<echo message="Create and zip API-Doc" />
-		<ant antfile="doc/jd_console.xml" dir="" />
-		<zip destfile="${CP.apiDocZip}" basedir="doc/console" />
-	</target>
-
-	<!-- [create-src] zipps the source-code into a zip-file -->
-	<target name="create-src" depends="init">
-		<echo message="Copy source-files and zip them" />
-		<mkdir dir="${CP.sourceTemp}" />
-		<!-- copy files -->
-		<copy toDir="${CP.sourceTemp}/">
-			<fileset dir="${CP.eclipse.src.dir}">
-				<include name="thobe/logfileviewer/plugins/console/**/*.java" />
-				<include name="thobe/logfileviewer/plugins/console/**/*.properties" />
-				<include name="thobe/logfileviewer/plugins/console/**/*.png" />							
-				<exclude name="playground/**" />
-				<exclude name="testing/**" />
-			</fileset>
-		</copy>
-		<zip destfile="${CP.sourceZip}" basedir="${CP.sourceTemp}" />
-		<delete dir="${CP.sourceTemp}" />
 	</target>
 
 	<!-- [clean] delete temp folder "jar" -->
@@ -105,12 +77,12 @@
 
 		<!-- copy jar-file to projet dir -->
 		<echo message="copy ${CP.jar.dir}/${CP.jarName} into project-directory" />
-		<copy file="${CP.jar.dir}/${CP.jarName}" todir="." />
+		<copy file="${CP.jar.dir}/${CP.jarName}" todir="../" />
 
 		<!-- clean temp jar dir -->
 		<antcall target="clean">
 		</antcall>
 	</target>
 
-	<target name="create-all" depends="clean,create-src,create-doc,create-jar"/>
+	<target name="create-all" depends="clean,create-jar"/>
 </project>

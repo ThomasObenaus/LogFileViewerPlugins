@@ -16,10 +16,10 @@
 		<property name="LLC.Contact" value="obenaus.thomas@gmail.com" />
 
 		<!-- don't change these properties -->
-		<property name="LLC.eclipse.build.dir" value="bin" />
-		<property name="LLC.eclipse.lib.dir" value="libs" />
+		<property name="LLC.eclipse.build.dir" value="../bin" />
+		<property name="LLC.eclipse.lib.dir" value="../libs" />
 
-		<property name="LLC.jar.dir" value="jar" />
+		<property name="LLC.jar.dir" value="../jar" />
 		<property name="LLC.jarName" value="${ant.project.name}.jar" />
 
 		<tstamp>
@@ -75,7 +75,7 @@
 
 		<!-- copy jar-file to projet dir -->
 		<echo message="copy ${LLC.jar.dir}/${LLC.jarName} into project-directory" />
-		<copy file="${LLC.jar.dir}/${LLC.jarName}" todir="." />
+		<copy file="${LLC.jar.dir}/${LLC.jarName}" todir="../." />
 
 		<!-- clean temp jar dir -->
 		<antcall target="clean">

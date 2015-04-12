@@ -16,45 +16,18 @@
 		<property name="PM.Contact" value="obenaus.thomas@gmail.com" />
 
 		<!-- don't change these properties -->
-		<property name="PM.eclipse.build.dir" value="bin" />
-		<property name="PM.eclipse.src.dir" value="src" />
-		<property name="PM.eclipse.lib.dir" value="libs" />
+		<property name="PM.eclipse.build.dir" value="../bin" />
+		<property name="PM.eclipse.src.dir" value="../src" />
+		<property name="PM.eclipse.lib.dir" value="../libs" />
 
-		<property name="PM.jar.dir" value="jar" />
-		<property name="PM.apiDocZip" value="${ant.project.name}_doc.zip" />
-		<property name="PM.sourceZip" value="${ant.project.name}_src.zip" />
-		<property name="PM.sourceTemp" value="_src_tmp" />
+		<property name="PM.jar.dir" value="../jar" />
 		<property name="PM.jarName" value="${ant.project.name}.jar" />
 
 		<tstamp>
 			<format property="PM.creation-date" pattern="YYYY-MM-DD zzz" locale="de,DE" />
 		</tstamp>
 	</target>
-
-	<!-- [create-doc] create api-doc, build/pack zip-file <project-name>_doc.zip -->
-	<target name="create-doc" depends="init">
-		<echo message="Create and zip API-Doc" />
-		<ant antfile="doc/jd_perfMon.xml" dir="" />
-		<zip destfile="${PM.apiDocZip}" basedir="doc/perfMon" />
-	</target>
-
-	<!-- [create-src] zipps the source-code into a zip-file -->
-	<target name="create-src" depends="init">
-		<echo message="Copy source-files and zip them" />
-		<mkdir dir="${PM.sourceTemp}" />
-		<!-- copy files -->
-		<copy toDir="${PM.sourceTemp}/">
-			<fileset dir="${PM.eclipse.src.dir}">
-				<include name="thobe/logfileviewer/plugins/perfMon/**/*.java" />
-				<include name="thobe/logfileviewer/plugins/perfMon/**/*.properties" />							
-				<exclude name="playground/**" />
-				<exclude name="testing/**" />
-			</fileset>
-		</copy>
-		<zip destfile="${PM.sourceZip}" basedir="${PM.sourceTemp}" />
-		<delete dir="${PM.sourceTemp}" />
-	</target>
-
+	
 	<!-- [clean] delete temp folder "jar" -->
 	<target name="clean" depends="init">
 		<echo message="Deleting folder /${PM.jar.dir}." />
@@ -104,12 +77,12 @@
 
 		<!-- copy jar-file to projet dir -->
 		<echo message="copy ${PM.jar.dir}/${PM.jarName} into project-directory" />
-		<copy file="${PM.jar.dir}/${PM.jarName}" todir="." />
+		<copy file="${PM.jar.dir}/${PM.jarName}" todir="../." />
 
 		<!-- clean temp jar dir -->
 		<antcall target="clean">
 		</antcall>
 	</target>
 
-	<target name="create-all" depends="clean,create-src,create-doc,create-jar"/>
+	<target name="create-all" depends="clean,create-jar"/>
 </project>
