@@ -102,10 +102,6 @@ public class TaskView extends Plugin
 	}
 
 	@Override
-	public void onNewLine( ILogLine line )
-	{}
-
-	@Override
 	public void onNewBlockOfLines( List<ILogLine> blockOfLines )
 	{
 		// TODO Auto-generated method stub

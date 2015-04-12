@@ -300,13 +300,6 @@ public class Console extends Plugin implements ISubConsoleFactoryAccess, IConsol
 	}
 
 	@Override
-	public void onNewLine( ILogLine line )
-	{
-		this.lineBuffer.add( line );
-		this.eventSemaphore.release( );
-	}
-
-	@Override
 	public Pattern getLineFilter( )
 	{
 		return this.pattern;

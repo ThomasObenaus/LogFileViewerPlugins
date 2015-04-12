@@ -107,13 +107,6 @@ public class PerformanceMonitor extends Plugin
 	}
 
 	@Override
-	public void onNewLine( ILogLine line )
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
 	public void onNewBlockOfLines( List<ILogLine> blockOfLines )
 	{
 		// TODO Auto-generated method stub

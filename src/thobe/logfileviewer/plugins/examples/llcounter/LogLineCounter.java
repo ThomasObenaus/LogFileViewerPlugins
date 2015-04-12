@@ -95,12 +95,6 @@ public class LogLineCounter extends Plugin
 
 	/* Methods for obtaining the log-lines*/
 	@Override
-	public void onNewLine( ILogLine line )
-	{
-		// deprecated. nothing to do, since the LogFileViewer uses onNewBlockOfLines instead
-	}
-
-	@Override
 	public void onNewBlockOfLines( List<ILogLine> blockOfLines )
 	{
 		// here we can count and print out the number of lines
