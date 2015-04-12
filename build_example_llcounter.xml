@@ -45,11 +45,11 @@
 		<!-- copy files from build dir -->
 		<copy toDir="${LLC.jar.dir}/">
 			<fileset dir="${LLC.eclipse.build.dir}">
-				<include name="**/*.class" />
-				<include name="**/*.properties" />
-				<include name="**/*.gif" />
-				<include name="**/*.png" />						
-				<exclude name="**/*.jar" />
+				<include name="thobe/logfileviewer/plugins/examples/llcounter/**/*.class" />
+				<include name="thobe/logfileviewer/plugins/examples/llcounter/**/*.properties" />
+				<include name="thobe/logfileviewer/plugins/examples/llcounter/**/*.gif" />
+				<include name="thobe/logfileviewer/plugins/examples/llcounter/**/*.png" />						
+				<exclude name="thobe/logfileviewer/plugins/examples/llcounter/**/*.jar" />
 				<exclude name="playground/**" />
 				<exclude name="testing/**" />
 			</fileset>
