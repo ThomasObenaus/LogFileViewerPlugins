@@ -1,0 +1,86 @@
+<?xml version="1.0"?>
+
+<project name="thobe.logfileviewer.plugins.examples.llcounter" basedir="." default="create-jar">
+
+	<!-- [init] - task for setup of initial properties -->
+	<target name="init">
+		<echo message="Initial setup" />
+
+		<!-- set version here -->
+		<property name="LLC.Program-Version" value="0.1.0" />
+		<!-- set main-class here or uncomment line if u build a library -->		
+		<!-- set licence here -->
+		<property name="LLC.License" value="Licensed under the New BSD License (3-clause lic)" />
+		<property name="LLC.Copyright" value="Copyright (C) 2015, Thomas Obenaus. All rights reserved." />
+		<property name="LLC.Author" value="Thomas Obenaus" />
+		<property name="LLC.Contact" value="obenaus.thomas@gmail.com" />
+
+		<!-- don't change these properties -->
+		<property name="LLC.eclipse.build.dir" value="bin" />
+		<property name="LLC.eclipse.lib.dir" value="libs" />
+
+		<property name="LLC.jar.dir" value="jar" />
+		<property name="LLC.jarName" value="${ant.project.name}.jar" />
+
+		<tstamp>
+			<format property="LLC.creation-date" pattern="YYYY-MM-DD zzz" locale="de,DE" />
+		</tstamp>
+	</target>
+
+	<!-- [clean] delete temp folder "jar" -->
+	<target name="clean" depends="init">
+		<echo message="Deleting folder /${LLC.jar.dir}." />
+		<delete dir="${LLC.jar.dir}" />
+	</target>
+
+	<!-- [print-props-1] print property program-version and licence -->
+	<target name="print-props-1" depends="init">
+		<echo message="Building version '${LLC.Program-Version}'" />
+		<echo message="License is '${LLC.License}'" />
+	</target>
+
+	<!-- [create-jar] create jar file -->
+	<target name="create-jar" depends="clean,print-props-1">
+		<echo message="Copy files from build-directory /${LLC.eclipse.build.dir} to /${LLC.jar.dir}." />
+		<!-- copy files from build dir -->
+		<copy toDir="${LLC.jar.dir}/">
+			<fileset dir="${LLC.eclipse.build.dir}">
+				<include name="**/*.class" />
+				<include name="**/*.properties" />
+				<include name="**/*.gif" />
+				<include name="**/*.png" />						
+				<exclude name="**/*.jar" />
+				<exclude name="playground/**" />
+				<exclude name="testing/**" />
+			</fileset>
+		</copy>
+
+		<echo message="Extract referenced libraries." />		
+		<unzip src="${LLC.eclipse.lib.dir}/thobe.logfileviewer.plugin.api.jar" dest="${LLC.jar.dir}" />
+
+		<!-- create jar-file -->
+		<echo message="Create jar-file /${LLC.jar.dir}/${LLC.jarName}." />
+		<echo message="Program-Version: ${LLC.Program-Version}" />
+		<jar destfile="${LLC.jar.dir}/${LLC.jarName}" basedir="${LLC.jar.dir}">
+			<!-- write properties to manifest -->
+			<manifest>
+				<attribute name="Program-Version" value="${LLC.Program-Version}" />
+				<attribute name="Copyright" value="${LLC.Copyright}" />
+				<attribute name="Author" value="${LLC.Author}" />
+				<attribute name="Contact" value="${LLC.Contact}" />
+				<attribute name="Created" value="${LLC.creation-date}" />
+				<attribute name="Licence" value="${LLC.License}" />
+			</manifest>
+		</jar>
+
+		<!-- copy jar-file to projet dir -->
+		<echo message="copy ${LLC.jar.dir}/${LLC.jarName} into project-directory" />
+		<copy file="${LLC.jar.dir}/${LLC.jarName}" todir="." />
+
+		<!-- clean temp jar dir -->
+		<antcall target="clean">
+		</antcall>
+	</target>
+
+	<target name="create-all" depends="clean,create-jar"/>
+</project>
