@@ -1,0 +1,88 @@
+<?xml version="1.0"?>
+
+<project name="thobe.logfileviewer.plugins.linestats" basedir="." default="create-jar">
+
+	<!-- [init] - task for setup of initial properties -->
+	<target name="init">
+		<echo message="Initial setup" />
+
+		<!-- set version here -->
+		<property name="LNS.Program-Version" value="0.1.0" />
+		<!-- set main-class here or uncomment line if u build a library -->		
+		<!-- set licence here -->
+		<property name="LNS.License" value="Licensed under the New BSD License (3-clause lic)" />
+		<property name="LNS.Copyright" value="Copyright (C) 2015, Thomas Obenaus. All rights reserved." />
+		<property name="LNS.Author" value="Thomas Obenaus" />
+		<property name="LNS.Contact" value="obenaus.thomas@gmail.com" />
+
+		<!-- don't change these properties -->
+		<property name="LNS.eclipse.build.dir" value="../bin" />
+		<property name="LNS.eclipse.src.dir" value="../src" />
+		<property name="LNS.eclipse.lib.dir" value="../libs" />
+
+		<property name="LNS.jar.dir" value="../jar" />
+		<property name="LNS.jarName" value="${ant.project.name}.jar" />
+
+		<tstamp>
+			<format property="LNS.creation-date" pattern="YYYY-MM-DD zzz" locale="de,DE" />
+		</tstamp>
+	</target>
+
+	<!-- [clean] delete temp folder "jar" -->
+	<target name="clean" depends="init">
+		<echo message="Deleting folder /${LNS.jar.dir}." />
+		<delete dir="${LNS.jar.dir}" />
+	</target>
+
+	<!-- [print-props-1] print property program-version and licence -->
+	<target name="print-props-1" depends="init">
+		<echo message="Building version '${LNS.Program-Version}'" />
+		<echo message="License is '${LNS.License}'" />
+	</target>
+
+	<!-- [create-jar] create jar file -->
+	<target name="create-jar" depends="clean,print-props-1">
+		<echo message="Copy files from build-directory /${LNS.eclipse.build.dir} to /${LNS.jar.dir}." />
+		<!-- copy files from build dir -->
+		<copy toDir="${LNS.jar.dir}/">
+			<fileset dir="${LNS.eclipse.build.dir}">
+				<include name="thobe/logfileviewer/plugins/linestats/**/*.class" />
+				<include name="thobe/logfileviewer/plugins/linestats/**/*.properties" />
+				<include name="thobe/logfileviewer/plugins/linestats/**/*.gif" />
+				<include name="thobe/logfileviewer/plugins/linestats/**/*.png" />						
+				<exclude name="**/*.jar" />
+				<exclude name="playground/**" />
+				<exclude name="testing/**" />
+			</fileset>
+		</copy>
+
+		<echo message="Extract referenced libraries." />		
+		<unzip src="${LNS.eclipse.lib.dir}/widgets.jar" dest="${LNS.jar.dir}" />
+		<unzip src="${LNS.eclipse.lib.dir}/thobe.logfileviewer.plugin.api.jar" dest="${LNS.jar.dir}" />
+
+		<!-- create jar-file -->
+		<echo message="Create jar-file /${LNS.jar.dir}/${LNS.jarName}." />
+		<echo message="Program-Version: ${LNS.Program-Version}" />
+		<jar destfile="${LNS.jar.dir}/${LNS.jarName}" basedir="${LNS.jar.dir}">
+			<!-- write properties to manifest -->
+			<manifest>
+				<attribute name="Program-Version" value="${LNS.Program-Version}" />
+				<attribute name="Copyright" value="${LNS.Copyright}" />
+				<attribute name="Author" value="${LNS.Author}" />
+				<attribute name="Contact" value="${LNS.Contact}" />
+				<attribute name="Created" value="${LNS.creation-date}" />
+				<attribute name="Licence" value="${LNS.License}" />
+			</manifest>
+		</jar>
+
+		<!-- copy jar-file to projet dir -->
+		<echo message="copy ${LNS.jar.dir}/${LNS.jarName} into project-directory" />
+		<copy file="${LNS.jar.dir}/${LNS.jarName}" todir="../" />
+
+		<!-- clean temp jar dir -->
+		<antcall target="clean">
+		</antcall>
+	</target>
+
+	<target name="create-all" depends="clean,create-jar"/>
+</project>
