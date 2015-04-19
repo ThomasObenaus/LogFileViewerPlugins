@@ -129,18 +129,17 @@ public class LineStatistics
 		public void addLines( long lines, long newTimeStamp )
 		{
 			this.accumulatedLines += lines;
+
 			if ( ( newTimeStamp - this.startTimeStamp ) >= this.intervalInMs.getMilliseconds( ) )
 			{
 				this.initThresholdMet = ( this.startTimeStamp != 0 );
 				this.reset( newTimeStamp );
-
 			}
 
 			if ( !this.initThresholdMet )
 			{
 				this.linesInLastInterval = this.accumulatedLines;
 			}
-
 		}
 
 		public void reset( long timeStamp )
@@ -148,6 +147,7 @@ public class LineStatistics
 			this.linesInLastInterval = this.accumulatedLines;
 			this.startTimeStamp = timeStamp;
 			this.accumulatedLines = 0;
+			this.initThresholdMet = false;
 		}
 
 		public long getLinesInLastInterval( )

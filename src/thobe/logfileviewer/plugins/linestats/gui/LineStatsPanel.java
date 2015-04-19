@@ -16,8 +16,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
 
 import javax.swing.JButton;
@@ -27,6 +28,7 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
 import thobe.logfileviewer.plugin.api.IPluginUIComponent;
+import thobe.logfileviewer.plugins.linestats.ILineStatsPluginListener;
 import thobe.logfileviewer.plugins.linestats.LineStatistics;
 import thobe.logfileviewer.plugins.linestats.LineStatsPlugin;
 import thobe.widgets.textfield.RestrictedTextFieldAdapter;
@@ -41,7 +43,7 @@ import com.jgoodies.forms.layout.FormLayout;
  * @date Apr 19, 2015
  */
 @SuppressWarnings ( "serial")
-public class LineStatsPanel extends JPanel implements IPluginUIComponent
+public class LineStatsPanel extends JPanel implements IPluginUIComponent, ILineStatsPluginListener
 {
 	private LineStatsPlugin					lineStats;
 
@@ -55,21 +57,18 @@ public class LineStatsPanel extends JPanel implements IPluginUIComponent
 	private JButton							bu_stop;
 	private JButton							bu_startInterval;
 
-	private Timer							statsUpdateTimer;
-
-	private long							updateInterval;
+	private UpdateTask						updateTask;
 
 	private List<ILineStatsPanelListener>	listeners;
 
 	public LineStatsPanel( LineStatsPlugin lineStats )
 	{
-		this.updateInterval = 2000;
 		this.lineStats = lineStats;
 		this.listeners = new ArrayList<>( );
 		this.buildGUI( );
 
-		this.statsUpdateTimer = new Timer( "LineStatsUpdateTimer" );
-		this.statsUpdateTimer.schedule( new UpdateTask( ), updateInterval, updateInterval );
+		this.updateTask = new UpdateTask( 2000 );
+		this.updateTask.start( );
 	}
 
 	public void addListener( ILineStatsPanelListener l )
@@ -186,6 +185,14 @@ public class LineStatsPanel extends JPanel implements IPluginUIComponent
 
 	}
 
+	public void quit( )
+	{
+		if ( this.updateTask != null )
+		{
+			this.updateTask.quit( );
+		}
+	}
+
 	private void startStatTracing( boolean startWithInterval )
 	{
 		if ( startWithInterval )
@@ -284,16 +291,70 @@ public class LineStatsPanel extends JPanel implements IPluginUIComponent
 		}
 	}
 
-	private class UpdateTask extends TimerTask
+	private class UpdateTask extends Thread
 	{
+		private AtomicBoolean	cancelRequested;
+		private int				interval;
+		private Semaphore		eventSemaphore;
+
+		private AtomicBoolean	fireEnabled;
+
+		public UpdateTask( int interval )
+		{
+			super( "LineStatsUpdateTimer" );
+			this.interval = interval;
+			this.cancelRequested = new AtomicBoolean( false );
+			this.eventSemaphore = new Semaphore( 0, true );
+			this.fireEnabled = new AtomicBoolean( false );
+		}
+
+		public void setFireEnabled( boolean fireEnabled )
+		{
+			this.fireEnabled.set( fireEnabled );
+			this.eventSemaphore.release( );
+		}
+
+		public void quit( )
+		{
+			this.cancelRequested.set( true );
+			this.eventSemaphore.release( );
+		}
 
 		@Override
 		public void run( )
 		{
-			List<LineStatistics> stats = lineStats.getLineStats( );
-			fireUpdateView( stats );
+			while ( !this.cancelRequested.get( ) )
+			{
+				if ( this.fireEnabled.get( ) )
+				{
+					List<LineStatistics> stats = lineStats.getLineStats( );
+					fireUpdateView( stats );
+				}
+
+				try
+				{
+					this.eventSemaphore.tryAcquire( this.interval, TimeUnit.MILLISECONDS );
+				}
+				catch ( InterruptedException e )
+				{
+					break;
+				}
+
+			}
 		}
 
+	}
+
+	@Override
+	public void onStartTracing( )
+	{
+		this.updateTask.setFireEnabled( true );
+	}
+
+	@Override
+	public void onStopTracing( )
+	{
+		this.updateTask.setFireEnabled( false );
 	}
 
 }

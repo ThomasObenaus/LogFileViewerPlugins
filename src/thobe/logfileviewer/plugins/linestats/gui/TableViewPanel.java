@@ -11,10 +11,8 @@
 package thobe.logfileviewer.plugins.linestats.gui;
 
 import java.awt.BorderLayout;
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;

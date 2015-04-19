@@ -34,7 +34,7 @@ public class LineStatsPlugin extends Plugin
 {
 	private static final String				L_NAME			= "thobe.logfileviewer.plugins.linestats";
 	private static final int				MAJOR_VERSION	= 0;
-	private static final int				MINOR_VERSION	= 1;
+	private static final int				MINOR_VERSION	= 2;
 	private static final int				BUGFIX_VERSION	= 0;
 
 	private static final Pattern			ALL_FILTER		= Pattern.compile( ".*" );
@@ -47,12 +47,16 @@ public class LineStatsPlugin extends Plugin
 	private Semaphore						eventSemaphore;
 	private boolean							tracingRunning;
 
+	private List<ILineStatsPluginListener>	listeners;
+
 	private LineStatsPanel					pa_lineStats;
 
 	public LineStatsPlugin( )
 	{
 		super( "LineStats", L_NAME );
+		this.listeners = new ArrayList<ILineStatsPluginListener>( );
 		this.pa_lineStats = new LineStatsPanel( this );
+		this.addListener( this.pa_lineStats );
 
 		this.tracingRunning = false;
 		this.countsForCurrentRun = new HashMap<Pattern, LineStatistics>( );
@@ -65,6 +69,11 @@ public class LineStatsPlugin extends Plugin
 		this.llBuffer = new ArrayList<ILogLine>( );
 		this.eventSemaphore = new Semaphore( 0, true );
 
+	}
+
+	public void addListener( ILineStatsPluginListener l )
+	{
+		this.listeners.add( l );
 	}
 
 	public boolean isTracingRunning( )
@@ -92,24 +101,6 @@ public class LineStatsPlugin extends Plugin
 
 			this.updateCounters( block );
 
-			//			synchronized ( this.countsForCurrentRun )
-			//			{
-			//				if ( this.isTracingRunning( ) )
-			//				{
-			//					LineStatistics ls = this.getLineStatForPattern( ALL_FILTER );
-			//
-			//					long accLines = ls.getAccumulatedLines( );
-			//					float elapsedTime = ls.getElapsedTime( ) / 1000.f;
-			//					float lps = 0;
-			//					if ( elapsedTime > 0 )
-			//					{
-			//						lps = accLines / elapsedTime;
-			//					}
-			//
-			//					LOG( ).info( "Lines=" + accLines + " (in " + elapsedTime + "s => " + lps + " lps), linesInLastSec=" + ls.getLinesInLast( LinesInLastNMilliseconds.LINES_IN_LAST_SECOND ) + ", linesInLast10Sec=" + ls.getLinesInLast( LinesInLastNMilliseconds.LINES_IN_LAST_10_SECONDS ) + ", linesInLastMin=" + ls.getLinesInLast( LinesInLastNMilliseconds.LINES_IN_LAST_MINUTE ) );
-			//				}
-			//			}
-
 			try
 			{
 				this.eventSemaphore.tryAcquire( 500, TimeUnit.MILLISECONDS );
@@ -125,7 +116,9 @@ public class LineStatsPlugin extends Plugin
 
 	public LineStatistics addFilter( Pattern filter )
 	{
+		long startedAt = System.currentTimeMillis( );
 		LineStatistics added = new LineStatistics( filter );
+		added.reset( startedAt );
 		synchronized ( this.countsForCurrentRun )
 		{
 			this.countsForCurrentRun.put( filter, added );
@@ -185,6 +178,7 @@ public class LineStatsPlugin extends Plugin
 			LOG( ).info( this.getPluginName( ) + " Tracing started at " + this.startOfCurrentRun );
 		}// synchronized ( countsForCurrentRun )
 
+		this.fireTracingStarted( );
 		this.eventSemaphore.release( );
 	}
 
@@ -195,6 +189,7 @@ public class LineStatsPlugin extends Plugin
 			this.tracingRunning = false;
 			LOG( ).info( this.getPluginName( ) + " Tracing stopped at " + System.currentTimeMillis( ) );
 		}
+		this.fireTracingStopped( );
 		this.eventSemaphore.release( );
 	}
 
@@ -324,5 +319,21 @@ public class LineStatsPlugin extends Plugin
 	public IPluginUIComponent getUIComponent( )
 	{
 		return this.pa_lineStats;
+	}
+
+	private void fireTracingStopped( )
+	{
+		for ( ILineStatsPluginListener l : this.listeners )
+		{
+			l.onStopTracing( );
+		}
+	}
+
+	private void fireTracingStarted( )
+	{
+		for ( ILineStatsPluginListener l : this.listeners )
+		{
+			l.onStartTracing( );
+		}
 	}
 }
