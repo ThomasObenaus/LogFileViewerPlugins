@@ -58,6 +58,8 @@
 
 		<echo message="Extract referenced libraries." />		
 		<unzip src="${CP.eclipse.lib.dir}/widgets.jar" dest="${CP.jar.dir}" />
+		<unzip src="${LNS.eclipse.lib.dir}/jgoodies-common-1.8.0/jgoodies-common-1.8.0.jar" dest="${LNS.jar.dir}" />
+		<unzip src="${LNS.eclipse.lib.dir}/jgoodies-forms-1.8.0/jgoodies-forms-1.8.0.jar" dest="${LNS.jar.dir}" />
 		<unzip src="${CP.eclipse.lib.dir}/thobe.logfileviewer.plugin.api.jar" dest="${CP.jar.dir}" />
 
 		<!-- create jar-file -->

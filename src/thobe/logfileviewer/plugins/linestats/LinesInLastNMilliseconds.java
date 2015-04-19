@@ -17,7 +17,7 @@ package thobe.logfileviewer.plugins.linestats;
  */
 public enum LinesInLastNMilliseconds
 {
-	LINES_IN_LAST_SECOND( 1000 ), LINES_IN_LAST_10_SECONDS( 10000 ), LINES_IN_LAST_MINUTE( 60000 );
+	LINES_IN_LAST_SECOND( 1000 ), LINES_IN_LAST_10_SECONDS( 10000 ), LINES_IN_LAST_30_SECONDS( 30000 ),LINES_IN_LAST_MINUTE( 60000 );
 
 	private long	milliseconds;
 

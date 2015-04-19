@@ -12,21 +12,24 @@ package thobe.logfileviewer.plugins.linestats;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 /**
  * @author Thomas Obenaus
- * @source LineStat.java
+ * @source LineStatistics.java
  * @date Apr 13, 2015
  */
-public class LineStat
+public class LineStatistics
 {
 	private Map<LinesInLastNMilliseconds, IntervalAccumulator>	linesInLastNSeconds;
 	private long												accumulatedLines;
 	private long												startTimeStamp;
 	private long												elapsedTime;
+	private Pattern												filter;
 
-	public LineStat( )
+	public LineStatistics( Pattern filter )
 	{
+		this.filter = filter;
 		this.accumulatedLines = 0;
 		this.startTimeStamp = 0;
 		this.elapsedTime = 0;
@@ -34,9 +37,19 @@ public class LineStat
 
 		this.linesInLastNSeconds.put( LinesInLastNMilliseconds.LINES_IN_LAST_SECOND, new IntervalAccumulator( LinesInLastNMilliseconds.LINES_IN_LAST_SECOND ) );
 		this.linesInLastNSeconds.put( LinesInLastNMilliseconds.LINES_IN_LAST_10_SECONDS, new IntervalAccumulator( LinesInLastNMilliseconds.LINES_IN_LAST_10_SECONDS ) );
+		this.linesInLastNSeconds.put( LinesInLastNMilliseconds.LINES_IN_LAST_30_SECONDS, new IntervalAccumulator( LinesInLastNMilliseconds.LINES_IN_LAST_30_SECONDS ) );
 		this.linesInLastNSeconds.put( LinesInLastNMilliseconds.LINES_IN_LAST_MINUTE, new IntervalAccumulator( LinesInLastNMilliseconds.LINES_IN_LAST_MINUTE ) );
 	}
 
+	public Pattern getFilter( )
+	{
+		return filter;
+	}
+
+	/**
+	 * Resets the complete stattistic and takes the new start-time for the next interval.
+	 * @param startTimeStamp
+	 */
 	public void reset( long startTimeStamp )
 	{
 		this.startTimeStamp = startTimeStamp;
@@ -46,6 +59,15 @@ public class LineStat
 		{
 			e.getValue( ).reset( startTimeStamp );
 		}
+	}
+
+	public double getLPS( )
+	{
+		long accLines = this.getAccumulatedLines( );
+		double elapsedTime = this.getElapsedTime( ) / 1000.0;
+		if ( elapsedTime == 0d )
+			elapsedTime = 1d;
+		return accLines / elapsedTime;
 	}
 
 	public long getElapsedTime( )
@@ -79,6 +101,12 @@ public class LineStat
 		}
 
 		return result;
+	}
+
+	@Override
+	public String toString( )
+	{
+		return this.getFilter( ).toString( );
 	}
 
 	private class IntervalAccumulator

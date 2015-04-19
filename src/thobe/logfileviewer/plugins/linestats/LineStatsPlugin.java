@@ -19,45 +19,52 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 import thobe.logfileviewer.plugin.Plugin;
+import thobe.logfileviewer.plugin.api.IPluginUIComponent;
 import thobe.logfileviewer.plugin.source.logline.ILogLine;
 import thobe.logfileviewer.plugin.util.PatternMatch;
 import thobe.logfileviewer.plugin.util.SizeOf;
+import thobe.logfileviewer.plugins.linestats.gui.LineStatsPanel;
 
 /**
  * @author Thomas Obenaus
- * @source LineStats.java
+ * @source LineStatsPlugin.java
  * @date Apr 13, 2015
  */
-public class LineStats extends Plugin
+public class LineStatsPlugin extends Plugin
 {
-	private static final String		L_NAME			= "thobe.logfileviewer.plugins.linestats";
-	private static final int		MAJOR_VERSION	= 0;
-	private static final int		MINOR_VERSION	= 1;
-	private static final int		BUGFIX_VERSION	= 0;
+	private static final String				L_NAME			= "thobe.logfileviewer.plugins.linestats";
+	private static final int				MAJOR_VERSION	= 0;
+	private static final int				MINOR_VERSION	= 1;
+	private static final int				BUGFIX_VERSION	= 0;
 
-	private static final Pattern	ALL_FILTER		= Pattern.compile( ".*" );
+	private static final Pattern			ALL_FILTER		= Pattern.compile( ".*" );
 
-	private Map<Pattern, LineStat>	countsForCurrentRun;
-	private Map<Pattern, Long>		patLineCounter;
-	private long					startOfCurrentRun;
+	private Map<Pattern, LineStatistics>	countsForCurrentRun;
+	private Map<Pattern, Long>				patLineCounter;
+	private long							startOfCurrentRun;
 
-	private List<ILogLine>			llBuffer;
-	private Semaphore				eventSemaphore;
-	private boolean					tracingRunning;
+	private List<ILogLine>					llBuffer;
+	private Semaphore						eventSemaphore;
+	private boolean							tracingRunning;
 
-	public LineStats( )
+	private LineStatsPanel					pa_lineStats;
+
+	public LineStatsPlugin( )
 	{
 		super( "LineStats", L_NAME );
+		this.pa_lineStats = new LineStatsPanel( this );
+
 		this.tracingRunning = false;
-		this.countsForCurrentRun = new HashMap<Pattern, LineStat>( );
+		this.countsForCurrentRun = new HashMap<Pattern, LineStatistics>( );
 		this.patLineCounter = new HashMap<Pattern, Long>( );
 
 		// add the all filter for the remaining log-lines
-		this.countsForCurrentRun.put( ALL_FILTER, new LineStat( ) );
+		this.countsForCurrentRun.put( ALL_FILTER, new LineStatistics( ALL_FILTER ) );
 		this.patLineCounter.put( ALL_FILTER, new Long( 0 ) );
 
 		this.llBuffer = new ArrayList<ILogLine>( );
 		this.eventSemaphore = new Semaphore( 0, true );
+
 	}
 
 	public boolean isTracingRunning( )
@@ -85,23 +92,23 @@ public class LineStats extends Plugin
 
 			this.updateCounters( block );
 
-			synchronized ( this.countsForCurrentRun )
-			{
-				if ( this.isTracingRunning( ) )
-				{
-					LineStat ls = this.getLineStatForPattern( ALL_FILTER );
-
-					long accLines = ls.getAccumulatedLines( );
-					float elapsedTime = ls.getElapsedTime( ) / 1000.f;
-					float lps = 0;
-					if ( elapsedTime > 0 )
-					{
-						lps = accLines / elapsedTime;
-					}
-
-					LOG( ).info( "Lines=" + accLines + " (in " + elapsedTime + "s => " + lps + " lps), linesInLastSec=" + ls.getLinesInLast( LinesInLastNMilliseconds.LINES_IN_LAST_SECOND ) + ", linesInLast10Sec=" + ls.getLinesInLast( LinesInLastNMilliseconds.LINES_IN_LAST_10_SECONDS ) + ", linesInLastMin=" + ls.getLinesInLast( LinesInLastNMilliseconds.LINES_IN_LAST_MINUTE ) );
-				}
-			}
+			//			synchronized ( this.countsForCurrentRun )
+			//			{
+			//				if ( this.isTracingRunning( ) )
+			//				{
+			//					LineStatistics ls = this.getLineStatForPattern( ALL_FILTER );
+			//
+			//					long accLines = ls.getAccumulatedLines( );
+			//					float elapsedTime = ls.getElapsedTime( ) / 1000.f;
+			//					float lps = 0;
+			//					if ( elapsedTime > 0 )
+			//					{
+			//						lps = accLines / elapsedTime;
+			//					}
+			//
+			//					LOG( ).info( "Lines=" + accLines + " (in " + elapsedTime + "s => " + lps + " lps), linesInLastSec=" + ls.getLinesInLast( LinesInLastNMilliseconds.LINES_IN_LAST_SECOND ) + ", linesInLast10Sec=" + ls.getLinesInLast( LinesInLastNMilliseconds.LINES_IN_LAST_10_SECONDS ) + ", linesInLastMin=" + ls.getLinesInLast( LinesInLastNMilliseconds.LINES_IN_LAST_MINUTE ) );
+			//				}
+			//			}
 
 			try
 			{
@@ -116,9 +123,46 @@ public class LineStats extends Plugin
 		LOG( ).info( this.getPluginName( ) + " left main-loop" );
 	}
 
-	public LineStat getLineStatForPattern( Pattern pat )
+	public LineStatistics addFilter( Pattern filter )
 	{
-		LineStat result = null;
+		LineStatistics added = new LineStatistics( filter );
+		synchronized ( this.countsForCurrentRun )
+		{
+			this.countsForCurrentRun.put( filter, added );
+			this.patLineCounter.put( filter, new Long( 0 ) );
+		}
+		return added;
+	}
+
+	public void removeFilter( List<Pattern> filters )
+	{
+		synchronized ( this.countsForCurrentRun )
+		{
+			for ( Pattern filter : filters )
+			{
+				this.countsForCurrentRun.remove( filter );
+				this.patLineCounter.remove( filter );
+			}
+		}
+	}
+
+	public List<LineStatistics> getLineStats( )
+	{
+		List<LineStatistics> stats = new ArrayList<>( );
+		synchronized ( countsForCurrentRun )
+		{
+			for ( Map.Entry<Pattern, LineStatistics> e : this.countsForCurrentRun.entrySet( ) )
+			{
+				stats.add( e.getValue( ) );
+			}
+		}
+
+		return stats;
+	}
+
+	public LineStatistics getLineStatForPattern( Pattern pat )
+	{
+		LineStatistics result = null;
 		synchronized ( this.countsForCurrentRun )
 		{
 			result = this.countsForCurrentRun.get( pat );
@@ -149,7 +193,7 @@ public class LineStats extends Plugin
 		synchronized ( countsForCurrentRun )
 		{
 			this.tracingRunning = false;
-			LOG( ).info( this.getPluginName( ) + " Tracing started at " + System.currentTimeMillis( ) );
+			LOG( ).info( this.getPluginName( ) + " Tracing stopped at " + System.currentTimeMillis( ) );
 		}
 		this.eventSemaphore.release( );
 	}
@@ -276,4 +320,9 @@ public class LineStats extends Plugin
 		return true;
 	}
 
+	@Override
+	public IPluginUIComponent getUIComponent( )
+	{
+		return this.pa_lineStats;
+	}
 }
