@@ -210,6 +210,19 @@ public class LineStatsPanel extends JPanel implements IPluginUIComponent
 	private void addNewFilter( )
 	{
 		String patStr = this.rtf_filter.getValue( );
+
+		if ( ( patStr != null ) && ( !patStr.isEmpty( ) ) )
+		{
+			if ( !patStr.endsWith( ".*" ) )
+			{
+				patStr += ".*";
+			}
+			if ( !patStr.startsWith( ".*" ) )
+			{
+				patStr = ".*" + patStr;
+			}
+		}
+
 		Pattern filter = Pattern.compile( patStr );
 		LineStatistics added = this.lineStats.addFilter( filter );
 		this.fireStatAdded( added );
