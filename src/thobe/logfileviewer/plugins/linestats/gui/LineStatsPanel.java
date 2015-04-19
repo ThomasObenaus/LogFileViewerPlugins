@@ -11,7 +11,6 @@
 package thobe.logfileviewer.plugins.linestats.gui;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -21,15 +20,11 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.regex.Pattern;
 
-import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
-
-import com.jgoodies.forms.layout.CellConstraints;
-import com.jgoodies.forms.layout.FormLayout;
 
 import thobe.logfileviewer.plugin.api.IPluginUIComponent;
 import thobe.logfileviewer.plugins.linestats.LineStatistics;
@@ -37,11 +32,15 @@ import thobe.logfileviewer.plugins.linestats.LineStatsPlugin;
 import thobe.widgets.textfield.RestrictedTextFieldAdapter;
 import thobe.widgets.textfield.RestrictedTextFieldRegexp;
 
+import com.jgoodies.forms.layout.CellConstraints;
+import com.jgoodies.forms.layout.FormLayout;
+
 /**
  * @author Thomas Obenaus
  * @source LineStatsPanel.java
  * @date Apr 19, 2015
  */
+@SuppressWarnings ( "serial")
 public class LineStatsPanel extends JPanel implements IPluginUIComponent
 {
 	private LineStatsPlugin					lineStats;

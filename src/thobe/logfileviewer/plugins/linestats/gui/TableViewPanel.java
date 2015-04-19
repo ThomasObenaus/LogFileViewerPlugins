@@ -11,11 +11,14 @@
 package thobe.logfileviewer.plugins.linestats.gui;
 
 import java.awt.BorderLayout;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.RowSorter;
+import javax.swing.SortOrder;
 
 import thobe.logfileviewer.plugins.linestats.LineStatistics;
 
@@ -44,20 +47,24 @@ public class TableViewPanel extends JPanel implements ILineStatsPanelListener
 		JScrollPane scrpa_table = new JScrollPane( this.ta_stats );
 		this.add( scrpa_table, BorderLayout.CENTER );
 		this.add( this.ta_stats.getTableHeader( ), BorderLayout.NORTH );
+
+		this.ta_stats.setAutoCreateRowSorter( true );
+		List<RowSorter.SortKey> sortKeys = new ArrayList<RowSorter.SortKey>( );
+		sortKeys.add( new RowSorter.SortKey( 1, SortOrder.DESCENDING ) );
+		this.ta_stats.getRowSorter( ).setSortKeys( sortKeys );
+
 	}
 
 	@Override
 	public void onUpdateView( List<LineStatistics> stats )
 	{
 		this.model.updateAllEntries( stats );
-System.out.println( "TableViewPanel.onUpdateView()" );
 	}
 
 	@Override
 	public void onStatAdd( LineStatistics stat )
 	{
 		this.model.addEntry( stat );
-		System.out.println( "TableViewPanel.onStatAdd()" );
 	}
 
 	@Override
