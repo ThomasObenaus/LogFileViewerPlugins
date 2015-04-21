@@ -211,11 +211,13 @@ public class LineStatsPanel extends JPanel implements IPluginUIComponent, ILineS
 
 	private void addFiltersFromFile( )
 	{
-		JFileChooser fc = new JFileChooser( "" );
+		JFileChooser fc = new JFileChooser( this.lineStats.getPrefs( ).getFileFilterPath( ) );
 		fc.setFileSelectionMode( JFileChooser.FILES_ONLY );
 		if ( fc.showOpenDialog( this ) == JFileChooser.APPROVE_OPTION )
 		{
 			File f = fc.getSelectedFile( );
+
+			this.lineStats.getPrefs( ).setFileFilterPath( f.getParentFile( ) );
 
 			LOG( ).info( "Reading filters from '" + f.getAbsolutePath( ) + "'" );
 			List<Pattern> patternsFromFile = new ArrayList<Pattern>( );
@@ -280,8 +282,9 @@ public class LineStatsPanel extends JPanel implements IPluginUIComponent, ILineS
 
 	private void removeSelectedFilters( )
 	{
-		// TODO Auto-generated method stub
-
+		List<LineStatistics> selected = this.pa_tableView.getSelectedStats( );
+		this.lineStats.removeFilters( selected );
+		this.fireStatsRemoved( selected );
 	}
 
 	private void addNewFilter( )

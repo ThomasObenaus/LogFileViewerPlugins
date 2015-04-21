@@ -112,6 +112,21 @@ public class LS_TableModel extends AbstractTableModel
 		}
 	}
 
+	public List<LineStatistics> getStatsAt( int rows[] )
+	{
+		List<LineStatistics> result = new ArrayList<LineStatistics>( );
+
+		synchronized ( this.data )
+		{
+			for ( int r : rows )
+			{
+				result.add( this.data.get( r ) );
+			}
+		}
+
+		return result;
+	}
+
 	public void updateAllEntries( List<LineStatistics> entries )
 	{
 

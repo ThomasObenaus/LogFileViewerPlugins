@@ -57,6 +57,19 @@ public class TableViewPanel extends JPanel implements ILineStatsPanelListener
 		this.ta_stats.setRowSorter( sorter );
 	}
 
+	public List<LineStatistics> getSelectedStats( )
+	{
+		int selectedRowsInView[] = this.ta_stats.getSelectedRows( );
+
+		int selectedRowsInModel[] = new int[selectedRowsInView.length];
+		for ( int i = 0; i < selectedRowsInView.length; ++i )
+		{
+			selectedRowsInModel[i] = this.ta_stats.convertRowIndexToModel( selectedRowsInView[i] );
+		}
+
+		return this.model.getStatsAt( selectedRowsInModel );
+	}
+
 	@Override
 	public void onStatsAdd( List<LineStatistics> stats )
 	{

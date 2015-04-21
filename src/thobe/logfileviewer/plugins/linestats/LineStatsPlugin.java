@@ -19,6 +19,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 import thobe.logfileviewer.plugin.Plugin;
+import thobe.logfileviewer.plugin.api.IPluginPreferences;
 import thobe.logfileviewer.plugin.api.IPluginUIComponent;
 import thobe.logfileviewer.plugin.source.logline.ILogLine;
 import thobe.logfileviewer.plugin.util.PatternMatch;
@@ -50,10 +51,12 @@ public class LineStatsPlugin extends Plugin
 	private List<ILineStatsPluginListener>	listeners;
 
 	private LineStatsPanel					pa_lineStats;
+	private LineStatPreferences				lineStatPrefs;
 
 	public LineStatsPlugin( )
 	{
 		super( "LineStats", L_NAME );
+		this.lineStatPrefs = new LineStatPreferences( );
 		this.listeners = new ArrayList<ILineStatsPluginListener>( );
 		this.pa_lineStats = new LineStatsPanel( LOG( ), this );
 		this.addListener( this.pa_lineStats );
@@ -165,14 +168,14 @@ public class LineStatsPlugin extends Plugin
 		return result;
 	}
 
-	public void removeFilter( List<Pattern> filters )
+	public void removeFilters( List<LineStatistics> filters )
 	{
 		synchronized ( this.countsForCurrentRun )
 		{
-			for ( Pattern filter : filters )
+			for ( LineStatistics stat : filters )
 			{
-				this.countsForCurrentRun.remove( filter );
-				this.patLineCounter.remove( filter );
+				this.countsForCurrentRun.remove( stat.getFilter( ).toString( ) );
+				this.patLineCounter.remove( stat.getFilter( ) );
 			}
 		}
 	}
@@ -373,5 +376,16 @@ public class LineStatsPlugin extends Plugin
 		{
 			l.onStartTracing( );
 		}
+	}
+
+	public LineStatPreferences getPrefs( )
+	{
+		return this.lineStatPrefs;
+	}
+
+	@Override
+	public IPluginPreferences getPluginPreferences( )
+	{
+		return this.lineStatPrefs;
 	}
 }
