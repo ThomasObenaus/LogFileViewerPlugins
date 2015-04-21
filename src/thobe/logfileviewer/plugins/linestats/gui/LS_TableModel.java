@@ -38,18 +38,30 @@ public class LS_TableModel extends AbstractTableModel
 
 	public void clear( )
 	{
-		int numEntries = this.data.size( );
-
-		if ( numEntries > 0 )
+		int numEntries = 0;
+		synchronized ( this.data )
 		{
-			this.data.clear( );
-			this.fireTableRowsDeleted( 0, numEntries - 1 );
+			numEntries = this.data.size( );
+
+			if ( numEntries > 0 )
+			{
+				this.data.clear( );
+
+			}
 		}
+
+		this.fireTableRowsDeleted( 0, numEntries - 1 );
 	}
 
 	public void removeEntries( List<LineStatistics> stats )
 	{
-		if ( this.data.removeAll( stats ) )
+		boolean sthRemoved = false;
+		synchronized ( this.data )
+		{
+			sthRemoved = this.data.removeAll( stats );
+		}
+
+		if ( sthRemoved )
 		{
 			this.fireTableDataChanged( );
 		}
@@ -57,22 +69,72 @@ public class LS_TableModel extends AbstractTableModel
 
 	public void addEntry( LineStatistics ls )
 	{
-		this.data.add( ls );
-		this.fireTableRowsInserted( this.data.size( ) - 1, this.data.size( ) - 1 );
+		int newSize = 0;
+		synchronized ( this.data )
+		{
+			if ( !this.data.contains( ls ) )
+			{
+				this.data.add( ls );
+			}
+
+			newSize = this.data.size( );
+		}
+
+		if ( newSize > 0 )
+		{
+			this.fireTableRowsInserted( newSize - 1, newSize - 1 );
+		}
 	}
 
 	public void addEntries( List<LineStatistics> ls )
 	{
 		int numEntries = this.data.size( );
-		this.data.addAll( ls );
-		this.fireTableRowsInserted( numEntries, this.data.size( ) - 1 );
+		int newSize = 0;
+		synchronized ( this.data )
+		{
+			for ( LineStatistics l : ls )
+			{
+				if ( !this.data.contains( l ) )
+				{
+					this.data.add( l );
+				}
+			}
+
+			newSize = this.data.size( );
+		}
+		if ( newSize > 0 )
+		{
+			this.fireTableRowsInserted( numEntries, newSize - 1 );
+		}
 	}
 
 	public void updateAllEntries( List<LineStatistics> entries )
 	{
-		this.data.clear( );
-		this.data.addAll( entries );
-		this.fireTableDataChanged( );
+
+		int currentNumberOfRows = 0;
+		int newNumberOfRows = 0;
+		int newSize = 0;
+		synchronized ( this.data )
+		{
+			currentNumberOfRows = this.getRowCount( );
+			newNumberOfRows = entries.size( );
+
+			this.data.clear( );
+			this.data.addAll( entries );
+			newSize = this.data.size( );
+		}
+
+		if ( currentNumberOfRows != newNumberOfRows )
+		{
+			this.fireTableDataChanged( );
+		}
+		else
+		{
+			if ( newSize > 0 )
+			{
+				this.fireTableRowsUpdated( 0, newSize - 1 );
+			}
+		}
 	}
 
 	@Override

@@ -109,6 +109,45 @@ public class LineStatistics
 		return this.getFilter( ).toString( );
 	}
 
+	@Override
+	public int hashCode( )
+	{
+		int seed = 372;
+
+		if ( this.getFilter( ) != null )
+		{
+			seed += this.getFilter( ).toString( ).hashCode( );
+		}
+		return seed;
+	}
+
+	@Override
+	public boolean equals( Object obj )
+	{
+		if ( !( obj instanceof LineStatistics ) )
+		{
+			return false;
+		}
+
+		if ( obj == this )
+			return true;
+
+		LineStatistics ls = ( LineStatistics ) obj;
+		if ( ( ls.getFilter( ) != null ) && ( this.getFilter( ) == null ) )
+			return false;
+		if ( ( ls.getFilter( ) == null ) && ( this.getFilter( ) != null ) )
+			return false;
+		if ( ( ls.getFilter( ) == null ) && ( this.getFilter( ) == null ) )
+			return true;
+
+		if ( ls.getFilter( ).toString( ).equals( this.getFilter( ).toString( ) ) )
+		{
+			return true;
+		}
+
+		return false;
+	}
+
 	private class IntervalAccumulator
 	{
 		private LinesInLastNMilliseconds	intervalInMs;

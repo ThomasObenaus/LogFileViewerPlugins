@@ -19,6 +19,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.RowSorter;
 import javax.swing.SortOrder;
+import javax.swing.table.TableRowSorter;
 
 import thobe.logfileviewer.plugins.linestats.LineStatistics;
 
@@ -48,11 +49,12 @@ public class TableViewPanel extends JPanel implements ILineStatsPanelListener
 		this.add( scrpa_table, BorderLayout.CENTER );
 		this.add( this.ta_stats.getTableHeader( ), BorderLayout.NORTH );
 
-		this.ta_stats.setAutoCreateRowSorter( true );
+		TableRowSorter<LS_TableModel> sorter = new TableRowSorter<LS_TableModel>( this.model );
 		List<RowSorter.SortKey> sortKeys = new ArrayList<RowSorter.SortKey>( );
 		sortKeys.add( new RowSorter.SortKey( 1, SortOrder.DESCENDING ) );
-		this.ta_stats.getRowSorter( ).setSortKeys( sortKeys );
-
+		sorter.setSortKeys( sortKeys );
+		sorter.setSortsOnUpdates( true );
+		this.ta_stats.setRowSorter( sorter );
 	}
 
 	@Override
