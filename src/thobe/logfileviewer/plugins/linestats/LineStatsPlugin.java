@@ -17,8 +17,10 @@ import java.util.Map;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import thobe.logfileviewer.plugin.Plugin;
+import thobe.logfileviewer.plugin.api.IPluginAccess;
 import thobe.logfileviewer.plugin.api.IPluginPreferences;
 import thobe.logfileviewer.plugin.api.IPluginUIComponent;
 import thobe.logfileviewer.plugin.source.logline.ILogLine;
@@ -35,7 +37,7 @@ public class LineStatsPlugin extends Plugin
 {
 	private static final String				L_NAME			= "thobe.logfileviewer.plugins.linestats";
 	private static final int				MAJOR_VERSION	= 0;
-	private static final int				MINOR_VERSION	= 2;
+	private static final int				MINOR_VERSION	= 3;
 	private static final int				BUGFIX_VERSION	= 0;
 
 	private static final Pattern			ALL_FILTER		= Pattern.compile( ".*" );
@@ -55,8 +57,8 @@ public class LineStatsPlugin extends Plugin
 
 	public LineStatsPlugin( )
 	{
-		super( "LineStats", L_NAME );
-		this.lineStatPrefs = new LineStatPreferences( );
+		super( L_NAME, L_NAME );
+		this.lineStatPrefs = new LineStatPreferences( LOG( ) );
 		this.listeners = new ArrayList<ILineStatsPluginListener>( );
 		this.pa_lineStats = new LineStatsPanel( LOG( ), this );
 		this.addListener( this.pa_lineStats );
@@ -346,6 +348,15 @@ public class LineStatsPlugin extends Plugin
 	@Override
 	public void onUnRegistered( )
 	{
+		// persist filters
+		List<LineStatistics> lineStats = this.getLineStats( );
+		List<String> filters = new ArrayList<String>( );
+		for ( LineStatistics ls : lineStats )
+		{
+			filters.add( ls.getFilter( ).toString( ) );
+		}
+		this.lineStatPrefs.setFilters( filters );
+
 		this.eventSemaphore.release( );
 	}
 
@@ -387,5 +398,28 @@ public class LineStatsPlugin extends Plugin
 	public IPluginPreferences getPluginPreferences( )
 	{
 		return this.lineStatPrefs;
+	}
+
+	@Override
+	public boolean onRegistered( IPluginAccess pluginAccess )
+	{
+		// add persisted filters
+		List<String> persistedFilters = this.lineStatPrefs.getFilters( );
+		List<Pattern> filters = new ArrayList<Pattern>( );
+		for ( String filterStr : persistedFilters )
+		{
+			try
+			{
+				Pattern filter = Pattern.compile( filterStr );
+				filters.add( filter );
+			}
+			catch ( PatternSyntaxException e )
+			{
+				LOG( ).severe( "Ignore persisted filter '" + filterStr + "': " + e.getLocalizedMessage( ) );
+			}
+		}// for ( String filterStr : persistedFilters )
+
+		this.pa_lineStats.addFilters( filters );
+		return true;
 	}
 }

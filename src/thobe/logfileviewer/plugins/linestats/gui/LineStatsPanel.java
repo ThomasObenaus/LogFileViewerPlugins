@@ -126,6 +126,11 @@ public class LineStatsPanel extends JPanel implements IPluginUIComponent, ILineS
 			{
 				bu_addFilter.setEnabled( !rtf_filter.getValue( ).isEmpty( ) );
 			}
+
+			public void valueChangeCommitted( )
+			{
+				addNewFilter( );
+			};
 		} );
 		this.bu_addFilter = new JButton( "+" );
 		pa_filter.add( this.bu_addFilter, cc_filter.xy( 6, 2 ) );
@@ -251,10 +256,15 @@ public class LineStatsPanel extends JPanel implements IPluginUIComponent, ILineS
 				LOG( ).warning( "Problem on processing selected file '" + f.getAbsolutePath( ) + "': " + e.getLocalizedMessage( ) );
 			}
 
-			List<LineStatistics> added = this.lineStats.addFilters( patternsFromFile );
-			this.fireStatsAdded( added );
+			this.addFilters( patternsFromFile );
 
 		}// if ( fc.showOpenDialog( this ) == JFileChooser.APPROVE_OPTION )
+	}
+
+	public void addFilters( List<Pattern> filters )
+	{
+		List<LineStatistics> added = this.lineStats.addFilters( filters );
+		this.fireStatsAdded( added );
 	}
 
 	public void quit( )
