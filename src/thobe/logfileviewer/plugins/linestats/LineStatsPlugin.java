@@ -55,7 +55,7 @@ public class LineStatsPlugin extends Plugin
 	{
 		super( "LineStats", L_NAME );
 		this.listeners = new ArrayList<ILineStatsPluginListener>( );
-		this.pa_lineStats = new LineStatsPanel( this );
+		this.pa_lineStats = new LineStatsPanel( LOG( ), this );
 		this.addListener( this.pa_lineStats );
 
 		this.tracingRunning = false;
@@ -125,6 +125,28 @@ public class LineStatsPlugin extends Plugin
 			this.patLineCounter.put( filter, new Long( 0 ) );
 		}
 		return added;
+	}
+
+	public List<LineStatistics> addFilters( List<Pattern> filters )
+	{
+		long startedAt = System.currentTimeMillis( );
+		List<LineStatistics> result = new ArrayList<LineStatistics>( );
+		for ( Pattern pat : filters )
+		{
+			LineStatistics added = new LineStatistics( pat );
+			added.reset( startedAt );
+			result.add( added );
+		}
+
+		synchronized ( this.countsForCurrentRun )
+		{
+			for ( LineStatistics stat : result )
+			{
+				this.countsForCurrentRun.put( stat.getFilter( ), stat );
+				this.patLineCounter.put( stat.getFilter( ), new Long( 0 ) );
+			}
+		}
+		return result;
 	}
 
 	public void removeFilter( List<Pattern> filters )

@@ -14,15 +14,22 @@ import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Logger;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
@@ -50,6 +57,7 @@ public class LineStatsPanel extends JPanel implements IPluginUIComponent, ILineS
 	private RestrictedTextFieldRegexp		rtf_filter;
 	private JButton							bu_addFilter;
 	private JButton							bu_removeSelectedFilters;
+	private JButton							bu_addFiltersFromFile;
 
 	private TableViewPanel					pa_tableView;
 
@@ -61,8 +69,11 @@ public class LineStatsPanel extends JPanel implements IPluginUIComponent, ILineS
 
 	private List<ILineStatsPanelListener>	listeners;
 
-	public LineStatsPanel( LineStatsPlugin lineStats )
+	private Logger							log;
+
+	public LineStatsPanel( Logger log, LineStatsPlugin lineStats )
 	{
+		this.log = log;
 		this.lineStats = lineStats;
 		this.listeners = new ArrayList<>( );
 		this.buildGUI( );
@@ -81,7 +92,7 @@ public class LineStatsPanel extends JPanel implements IPluginUIComponent, ILineS
 		this.setLayout( new BorderLayout( ) );
 
 		// Add filter panel
-		FormLayout fla_filter = new FormLayout( "3dlu,50dlu,3dlu,fill:default:grow,3dlu,40dlu,3dlu,default,3dlu", "3dlu,default,3dlu" );
+		FormLayout fla_filter = new FormLayout( "3dlu,50dlu,3dlu,fill:default:grow,3dlu,40dlu,3dlu,40dlu,3dlu,default,3dlu", "3dlu,default,3dlu" );
 		CellConstraints cc_filter = new CellConstraints( );
 		JPanel pa_filter = new JPanel( fla_filter );
 		this.add( pa_filter, BorderLayout.NORTH );
@@ -128,8 +139,21 @@ public class LineStatsPanel extends JPanel implements IPluginUIComponent, ILineS
 			}
 		} );
 		this.bu_addFilter.setEnabled( false );
+
+		this.bu_addFiltersFromFile = new JButton( "Add Filters From file" );
+		pa_filter.add( this.bu_addFiltersFromFile, cc_filter.xy( 8, 2 ) );
+		this.bu_addFiltersFromFile.setToolTipText( "Add a list of Filters from file." );
+		this.bu_addFiltersFromFile.addActionListener( new ActionListener( )
+		{
+			@Override
+			public void actionPerformed( ActionEvent e )
+			{
+				addFiltersFromFile( );
+			}
+
+		} );
 		this.bu_removeSelectedFilters = new JButton( "Remove Selected Filter" );
-		pa_filter.add( this.bu_removeSelectedFilters, cc_filter.xy( 8, 2 ) );
+		pa_filter.add( this.bu_removeSelectedFilters, cc_filter.xy( 10, 2 ) );
 		this.bu_removeSelectedFilters.setToolTipText( "Removes the selected filters from the statistics" );
 		this.bu_removeSelectedFilters.addActionListener( new ActionListener( )
 		{
@@ -185,6 +209,52 @@ public class LineStatsPanel extends JPanel implements IPluginUIComponent, ILineS
 
 	}
 
+	private void addFiltersFromFile( )
+	{
+		JFileChooser fc = new JFileChooser( "" );
+		fc.setFileSelectionMode( JFileChooser.FILES_ONLY );
+		if ( fc.showOpenDialog( this ) == JFileChooser.APPROVE_OPTION )
+		{
+			File f = fc.getSelectedFile( );
+
+			LOG( ).info( "Reading filters from '" + f.getAbsolutePath( ) + "'" );
+			List<Pattern> patternsFromFile = new ArrayList<Pattern>( );
+			try
+			{
+				BufferedReader br = new BufferedReader( new FileReader( f ) );
+
+				String line = null;
+				while ( ( line = br.readLine( ) ) != null )
+				{
+					line = line.trim( );
+					if ( !line.isEmpty( ) )
+					{
+						String patStr = addLeadingAndTralingAllPattern( line );
+						try
+						{
+							Pattern filter = Pattern.compile( patStr );
+							patternsFromFile.add( filter );
+							LOG( ).info( "Filter '" + filter.toString( ) + "' read from file." );
+						}
+						catch ( PatternSyntaxException e )
+						{
+							LOG( ).warning( "Ignore filter '" + patStr + "': " + e.getLocalizedMessage( ) );
+						}
+					}
+				}// while ( ( line = br.readLine( ) ) != null )
+				br.close( );
+			}
+			catch ( IOException e )
+			{
+				LOG( ).warning( "Problem on processing selected file '" + f.getAbsolutePath( ) + "': " + e.getLocalizedMessage( ) );
+			}
+
+			List<LineStatistics> added = this.lineStats.addFilters( patternsFromFile );
+			this.fireStatsAdded( added );
+
+		}// if ( fc.showOpenDialog( this ) == JFileChooser.APPROVE_OPTION )
+	}
+
 	public void quit( )
 	{
 		if ( this.updateTask != null )
@@ -216,8 +286,15 @@ public class LineStatsPanel extends JPanel implements IPluginUIComponent, ILineS
 
 	private void addNewFilter( )
 	{
-		String patStr = this.rtf_filter.getValue( );
+		String patStr = addLeadingAndTralingAllPattern( this.rtf_filter.getValue( ) );
 
+		Pattern filter = Pattern.compile( patStr );
+		LineStatistics added = this.lineStats.addFilter( filter );
+		this.fireStatAdded( added );
+	}
+
+	private static String addLeadingAndTralingAllPattern( String patStr )
+	{
 		if ( ( patStr != null ) && ( !patStr.isEmpty( ) ) )
 		{
 			if ( !patStr.endsWith( ".*" ) )
@@ -229,10 +306,7 @@ public class LineStatsPanel extends JPanel implements IPluginUIComponent, ILineS
 				patStr = ".*" + patStr;
 			}
 		}
-
-		Pattern filter = Pattern.compile( patStr );
-		LineStatistics added = this.lineStats.addFilter( filter );
-		this.fireStatAdded( added );
+		return patStr;
 	}
 
 	@Override
@@ -272,6 +346,14 @@ public class LineStatsPanel extends JPanel implements IPluginUIComponent, ILineS
 		for ( ILineStatsPanelListener l : this.listeners )
 		{
 			l.onStatAdd( lStat );
+		}
+	}
+
+	private void fireStatsAdded( List<LineStatistics> lStat )
+	{
+		for ( ILineStatsPanelListener l : this.listeners )
+		{
+			l.onStatsAdd( lStat );
 		}
 	}
 
@@ -343,6 +425,11 @@ public class LineStatsPanel extends JPanel implements IPluginUIComponent, ILineS
 			}
 		}
 
+	}
+
+	protected Logger LOG( )
+	{
+		return this.log;
 	}
 
 	@Override

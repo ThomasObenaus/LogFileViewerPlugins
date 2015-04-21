@@ -56,6 +56,12 @@ public class TableViewPanel extends JPanel implements ILineStatsPanelListener
 	}
 
 	@Override
+	public void onStatsAdd( List<LineStatistics> stats )
+	{
+		this.model.addEntries( stats );
+	}
+
+	@Override
 	public void onUpdateView( List<LineStatistics> stats )
 	{
 		this.model.updateAllEntries( stats );

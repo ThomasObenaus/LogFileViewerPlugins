@@ -25,5 +25,7 @@ public interface ILineStatsPanelListener
 
 	public void onStatAdd( LineStatistics stat );
 
+	public void onStatsAdd( List<LineStatistics> stats );
+
 	public void onStatsRemoved( List<LineStatistics> stats );
 }

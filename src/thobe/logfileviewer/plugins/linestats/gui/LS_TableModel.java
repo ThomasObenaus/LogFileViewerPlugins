@@ -61,6 +61,13 @@ public class LS_TableModel extends AbstractTableModel
 		this.fireTableRowsInserted( this.data.size( ) - 1, this.data.size( ) - 1 );
 	}
 
+	public void addEntries( List<LineStatistics> ls )
+	{
+		int numEntries = this.data.size( );
+		this.data.addAll( ls );
+		this.fireTableRowsInserted( numEntries, this.data.size( ) - 1 );
+	}
+
 	public void updateAllEntries( List<LineStatistics> entries )
 	{
 		this.data.clear( );
