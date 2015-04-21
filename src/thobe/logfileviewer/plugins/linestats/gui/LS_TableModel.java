@@ -70,17 +70,19 @@ public class LS_TableModel extends AbstractTableModel
 	public void addEntry( LineStatistics ls )
 	{
 		int newSize = 0;
+		boolean entryAdded = false;
 		synchronized ( this.data )
 		{
 			if ( !this.data.contains( ls ) )
 			{
 				this.data.add( ls );
+				entryAdded = true;
 			}
 
 			newSize = this.data.size( );
 		}
 
-		if ( newSize > 0 )
+		if ( entryAdded && ( newSize > 0 ) )
 		{
 			this.fireTableRowsInserted( newSize - 1, newSize - 1 );
 		}
@@ -90,6 +92,7 @@ public class LS_TableModel extends AbstractTableModel
 	{
 		int numEntries = this.data.size( );
 		int newSize = 0;
+		boolean sthAdded = false;
 		synchronized ( this.data )
 		{
 			for ( LineStatistics l : ls )
@@ -97,12 +100,13 @@ public class LS_TableModel extends AbstractTableModel
 				if ( !this.data.contains( l ) )
 				{
 					this.data.add( l );
+					sthAdded = true;
 				}
 			}
 
 			newSize = this.data.size( );
 		}
-		if ( newSize > 0 )
+		if ( sthAdded && ( newSize > 0 ) )
 		{
 			this.fireTableRowsInserted( numEntries, newSize - 1 );
 		}

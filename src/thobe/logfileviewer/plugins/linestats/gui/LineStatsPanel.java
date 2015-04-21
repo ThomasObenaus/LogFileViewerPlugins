@@ -290,7 +290,10 @@ public class LineStatsPanel extends JPanel implements IPluginUIComponent, ILineS
 
 		Pattern filter = Pattern.compile( patStr );
 		LineStatistics added = this.lineStats.addFilter( filter );
-		this.fireStatAdded( added );
+		if ( added != null )
+		{
+			this.fireStatAdded( added );
+		}
 	}
 
 	private static String addLeadingAndTralingAllPattern( String patStr )

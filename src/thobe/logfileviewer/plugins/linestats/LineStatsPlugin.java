@@ -39,7 +39,7 @@ public class LineStatsPlugin extends Plugin
 
 	private static final Pattern			ALL_FILTER		= Pattern.compile( ".*" );
 
-	private Map<Pattern, LineStatistics>	countsForCurrentRun;
+	private Map<String, LineStatistics>		countsForCurrentRun;
 	private Map<Pattern, Long>				patLineCounter;
 	private long							startOfCurrentRun;
 
@@ -59,11 +59,11 @@ public class LineStatsPlugin extends Plugin
 		this.addListener( this.pa_lineStats );
 
 		this.tracingRunning = false;
-		this.countsForCurrentRun = new HashMap<Pattern, LineStatistics>( );
+		this.countsForCurrentRun = new HashMap<String, LineStatistics>( );
 		this.patLineCounter = new HashMap<Pattern, Long>( );
 
 		// add the all filter for the remaining log-lines
-		this.countsForCurrentRun.put( ALL_FILTER, new LineStatistics( ALL_FILTER ) );
+		this.countsForCurrentRun.put( ALL_FILTER.toString( ), new LineStatistics( ALL_FILTER ) );
 		this.patLineCounter.put( ALL_FILTER, new Long( 0 ) );
 
 		this.llBuffer = new ArrayList<ILogLine>( );
@@ -114,15 +114,27 @@ public class LineStatsPlugin extends Plugin
 		LOG( ).info( this.getPluginName( ) + " left main-loop" );
 	}
 
+	/**
+	 * Adds a new filter and returns the newly created filter. The method returns null if the filter is already present.
+	 * @param filter
+	 * @return
+	 */
 	public LineStatistics addFilter( Pattern filter )
 	{
 		long startedAt = System.currentTimeMillis( );
 		LineStatistics added = new LineStatistics( filter );
 		added.reset( startedAt );
+
 		synchronized ( this.countsForCurrentRun )
 		{
-			this.countsForCurrentRun.put( filter, added );
-			this.patLineCounter.put( filter, new Long( 0 ) );
+			if ( this.countsForCurrentRun.put( filter.toString( ), added ) == null )
+			{
+				this.patLineCounter.put( filter, new Long( 0 ) );
+			}
+			else
+			{
+				added = null;
+			}
 		}
 		return added;
 	}
@@ -130,20 +142,24 @@ public class LineStatsPlugin extends Plugin
 	public List<LineStatistics> addFilters( List<Pattern> filters )
 	{
 		long startedAt = System.currentTimeMillis( );
-		List<LineStatistics> result = new ArrayList<LineStatistics>( );
+		List<LineStatistics> tmp = new ArrayList<LineStatistics>( );
 		for ( Pattern pat : filters )
 		{
 			LineStatistics added = new LineStatistics( pat );
 			added.reset( startedAt );
-			result.add( added );
+			tmp.add( added );
 		}
 
+		List<LineStatistics> result = new ArrayList<LineStatistics>( );
 		synchronized ( this.countsForCurrentRun )
 		{
-			for ( LineStatistics stat : result )
+			for ( LineStatistics stat : tmp )
 			{
-				this.countsForCurrentRun.put( stat.getFilter( ), stat );
-				this.patLineCounter.put( stat.getFilter( ), new Long( 0 ) );
+				if ( this.countsForCurrentRun.put( stat.getFilter( ).toString( ), stat ) == null )
+				{
+					this.patLineCounter.put( stat.getFilter( ), new Long( 0 ) );
+					result.add( stat );
+				}
 			}
 		}
 		return result;
@@ -166,7 +182,7 @@ public class LineStatsPlugin extends Plugin
 		List<LineStatistics> stats = new ArrayList<>( );
 		synchronized ( countsForCurrentRun )
 		{
-			for ( Map.Entry<Pattern, LineStatistics> e : this.countsForCurrentRun.entrySet( ) )
+			for ( Map.Entry<String, LineStatistics> e : this.countsForCurrentRun.entrySet( ) )
 			{
 				stats.add( e.getValue( ) );
 			}
@@ -194,7 +210,7 @@ public class LineStatsPlugin extends Plugin
 
 			for ( Map.Entry<Pattern, Long> entry : this.patLineCounter.entrySet( ) )
 			{
-				this.countsForCurrentRun.get( entry.getKey( ) ).reset( startOfCurrentRun );
+				this.countsForCurrentRun.get( entry.getKey( ).toString( ) ).reset( startOfCurrentRun );
 			}
 
 			LOG( ).info( this.getPluginName( ) + " Tracing started at " + this.startOfCurrentRun );
@@ -240,7 +256,7 @@ public class LineStatsPlugin extends Plugin
 		{
 			for ( Map.Entry<Pattern, Long> entry : this.patLineCounter.entrySet( ) )
 			{
-				this.countsForCurrentRun.get( entry.getKey( ) ).addLines( entry.getValue( ), currentTime );
+				this.countsForCurrentRun.get( entry.getKey( ).toString( ) ).addLines( entry.getValue( ), currentTime );
 			}
 		}// synchronized ( countsForCurrentRun )
 	}
