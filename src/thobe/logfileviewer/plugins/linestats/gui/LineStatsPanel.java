@@ -38,6 +38,9 @@ import thobe.logfileviewer.plugin.api.IPluginUIComponent;
 import thobe.logfileviewer.plugins.linestats.ILineStatsPluginListener;
 import thobe.logfileviewer.plugins.linestats.LineStatistics;
 import thobe.logfileviewer.plugins.linestats.LineStatsPlugin;
+import thobe.logfileviewer.plugins.linestats.gui.icons.LS_IconLib;
+import thobe.logfileviewer.plugins.linestats.gui.icons.LS_IconType;
+import thobe.widgets.icons.IconSize;
 import thobe.widgets.textfield.RestrictedTextFieldAdapter;
 import thobe.widgets.textfield.RestrictedTextFieldRegexp;
 
@@ -92,7 +95,7 @@ public class LineStatsPanel extends JPanel implements IPluginUIComponent, ILineS
 		this.setLayout( new BorderLayout( ) );
 
 		// Add filter panel
-		FormLayout fla_filter = new FormLayout( "3dlu,50dlu,3dlu,fill:default:grow,3dlu,40dlu,3dlu,40dlu,3dlu,default,3dlu", "3dlu,default,3dlu" );
+		FormLayout fla_filter = new FormLayout( "3dlu,50dlu,3dlu,fill:default:grow,3dlu,default,3dlu,default,3dlu,default,3dlu", "3dlu,default,3dlu" );
 		CellConstraints cc_filter = new CellConstraints( );
 		JPanel pa_filter = new JPanel( fla_filter );
 		this.add( pa_filter, BorderLayout.NORTH );
@@ -132,7 +135,7 @@ public class LineStatsPanel extends JPanel implements IPluginUIComponent, ILineS
 				addNewFilter( );
 			};
 		} );
-		this.bu_addFilter = new JButton( "+" );
+		this.bu_addFilter = new JButton( LS_IconLib.get( ).getIcon( LS_IconType.ADD, true, IconSize.S16x16 ) );
 		pa_filter.add( this.bu_addFilter, cc_filter.xy( 6, 2 ) );
 		this.bu_addFilter.setToolTipText( "Add the given filter" );
 		this.bu_addFilter.addActionListener( new ActionListener( )
@@ -145,7 +148,7 @@ public class LineStatsPanel extends JPanel implements IPluginUIComponent, ILineS
 		} );
 		this.bu_addFilter.setEnabled( false );
 
-		this.bu_addFiltersFromFile = new JButton( "Add Filters From file" );
+		this.bu_addFiltersFromFile = new JButton( LS_IconLib.get( ).getIcon( LS_IconType.ADD_FROM_FILE, true, IconSize.S16x16 ) );
 		pa_filter.add( this.bu_addFiltersFromFile, cc_filter.xy( 8, 2 ) );
 		this.bu_addFiltersFromFile.setToolTipText( "Add a list of Filters from file." );
 		this.bu_addFiltersFromFile.addActionListener( new ActionListener( )
@@ -157,7 +160,7 @@ public class LineStatsPanel extends JPanel implements IPluginUIComponent, ILineS
 			}
 
 		} );
-		this.bu_removeSelectedFilters = new JButton( "Remove Selected Filter" );
+		this.bu_removeSelectedFilters = new JButton( LS_IconLib.get( ).getIcon( LS_IconType.REMOVE_SELECTED_FILTERS, true, IconSize.S16x16 ) );
 		pa_filter.add( this.bu_removeSelectedFilters, cc_filter.xy( 10, 2 ) );
 		this.bu_removeSelectedFilters.setToolTipText( "Removes the selected filters from the statistics" );
 		this.bu_removeSelectedFilters.addActionListener( new ActionListener( )
