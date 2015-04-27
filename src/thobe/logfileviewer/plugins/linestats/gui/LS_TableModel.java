@@ -224,8 +224,7 @@ public class LS_TableModel extends AbstractTableModel
 		}
 		else if ( columnIndex == 2 )
 		{
-			long llIn10 = ls.getLinesInLast( LinesInLastNMilliseconds.LINES_IN_LAST_10_SECONDS );
-			return ( llIn10 / elapsedTimeInS );
+			return ls.getLPSInLast( LinesInLastNMilliseconds.LINES_IN_LAST_10_SECONDS );
 		}
 		else if ( columnIndex == 3 )
 		{
@@ -233,8 +232,7 @@ public class LS_TableModel extends AbstractTableModel
 		}
 		else if ( columnIndex == 4 )
 		{
-			long llIn10 = ls.getLinesInLast( LinesInLastNMilliseconds.LINES_IN_LAST_10_SECONDS );
-			return ( llIn10 / elapsedTimeInS );
+			return ls.getLPSInLast( LinesInLastNMilliseconds.LINES_IN_LAST_10_SECONDS );
 		}
 		else if ( columnIndex == 5 )
 		{
@@ -242,8 +240,7 @@ public class LS_TableModel extends AbstractTableModel
 		}
 		else if ( columnIndex == 6 )
 		{
-			long llIn10 = ls.getLinesInLast( LinesInLastNMilliseconds.LINES_IN_LAST_60_SECONDS );
-			return ( llIn10 / elapsedTimeInS );
+			return ls.getLPSInLast( LinesInLastNMilliseconds.LINES_IN_LAST_60_SECONDS );
 		}
 		else if ( columnIndex == 7 )
 		{

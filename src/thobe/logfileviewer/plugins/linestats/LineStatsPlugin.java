@@ -249,6 +249,18 @@ public class LineStatsPlugin extends Plugin
 		this.eventSemaphore.release( );
 	}
 
+	private void resetInternalCounters( )
+	{
+		// Now update the counts
+		synchronized ( countsForCurrentRun )
+		{
+			for ( Map.Entry<String, LineStatistics> entry : this.countsForCurrentRun.entrySet( ) )
+			{
+				entry.getValue( ).reset( );
+			}// for ( Map.Entry<String, LineStatistics> entry : this.countsForCurrentRun.entrySet( ) )
+		}// synchronized ( countsForCurrentRun )
+	}
+
 	private void updateCounters( List<ILogLine> block )
 	{
 		for ( Map.Entry<Pattern, Long> e : this.patLineCounter.entrySet( ) )
@@ -257,10 +269,9 @@ public class LineStatsPlugin extends Plugin
 		}
 
 		long start = this.clock.getCurrentTime( );
-
-		for ( ILogLine ll : block )
+		try
 		{
-			try
+			for ( ILogLine ll : block )
 			{
 				if ( this.clock.updateTime( ll ) )
 				{
@@ -269,33 +280,32 @@ public class LineStatsPlugin extends Plugin
 						if ( PatternMatch.matches( entry.getKey( ), ll ) )
 						{
 							entry.setValue( entry.getValue( ) + 1 );
-
 						}// if ( PatternMatch.matches( entry.getKey( ), ll ) )
 
 					}// for ( Map.Entry<Pattern, Long> entry : this.patLineCounter.entrySet( ) )
 				}// if ( this.clock.updateTime( ll ) )
-			}
-			catch ( ClockDetectedException e1 )
+			}// for ( ILogLine ll : block )
+
+			TimeRange timeRange = new TimeRange( start, this.clock.getCurrentTime( ) );
+			this.fireClockTimeUpdated( this.clock.getCurrentTime( ), this.clock.getElapsed( ) );
+
+			// Now update the counts
+			synchronized ( countsForCurrentRun )
 			{
-				start = this.clock.getCurrentTime( );
-				LOG( ).warning( e1.getLocalizedMessage( ) );
-				this.fireClockError( e1.getLocalizedMessage( ) );
-			}
-
-		}// for ( ILogLine ll : block )
-
-		TimeRange timeRange = new TimeRange( start, this.clock.getCurrentTime( ) );
-		this.fireClockTimeUpdated( this.clock.getCurrentTime( ), this.clock.getElapsed( ) );
-
-		// Now update the counts
-		synchronized ( countsForCurrentRun )
+				for ( Map.Entry<Pattern, Long> entry : this.patLineCounter.entrySet( ) )
+				{
+					Long value = entry.getValue( );
+					this.countsForCurrentRun.get( entry.getKey( ).toString( ) ).addLines( value, timeRange );
+				}// for ( Map.Entry<Pattern, Long> entry : this.patLineCounter.entrySet( ) )
+			}// synchronized ( countsForCurrentRun )
+		}
+		catch ( ClockDetectedException e1 )
 		{
-			for ( Map.Entry<Pattern, Long> entry : this.patLineCounter.entrySet( ) )
-			{
-				Long value = entry.getValue( );
-				this.countsForCurrentRun.get( entry.getKey( ).toString( ) ).addLines( value, timeRange );
-			}// for ( Map.Entry<Pattern, Long> entry : this.patLineCounter.entrySet( ) )
-		}// synchronized ( countsForCurrentRun )
+			this.resetInternalCounters( );
+			LOG( ).warning( e1.getLocalizedMessage( ) );
+			this.fireClockError( e1.getLocalizedMessage( ) );
+		}
+
 	}
 
 	@Override

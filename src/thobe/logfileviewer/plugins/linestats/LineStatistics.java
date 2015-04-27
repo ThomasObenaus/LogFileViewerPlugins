@@ -84,11 +84,11 @@ public class LineStatistics
 
 		this.accumulatedLines += lines;
 		this.elapsedTime = timeRange.getEnd( ) - startTimeStamp;
+
 		for ( Map.Entry<LinesInLastNMilliseconds, IntervalAccumulator> e : this.linesInLastNSeconds.entrySet( ) )
 		{
 			e.getValue( ).addLines( lines, timeRange );
 		}
-
 	}
 
 	public long getAccumulatedLines( )
@@ -102,7 +102,19 @@ public class LineStatistics
 		IntervalAccumulator acc = this.linesInLastNSeconds.get( lastNMilliseconds );
 		if ( acc != null )
 		{
-			result = acc.getLinesInLastInterval( );
+			result = acc.getLinesInLastInterVal( );
+		}
+
+		return result;
+	}
+
+	public float getLPSInLast( LinesInLastNMilliseconds lastNMilliseconds )
+	{
+		float result = 0;
+		IntervalAccumulator acc = this.linesInLastNSeconds.get( lastNMilliseconds );
+		if ( acc != null )
+		{
+			result = acc.getLPSInLastInterval( );
 		}
 
 		return result;
@@ -156,16 +168,18 @@ public class LineStatistics
 	private class IntervalAccumulator
 	{
 		private LinesInLastNMilliseconds	intervalInMs;
+		private long						linesInLastInterVal;
 		private long						accumulatedLines;
-		private long						linesInLastInterval;
 		private long						startTimeStamp;
+		private float						LPSInLastInterval;
 
 		public IntervalAccumulator( LinesInLastNMilliseconds intervalInMs )
 		{
 			this.intervalInMs = intervalInMs;
 			this.accumulatedLines = 0;
-			this.linesInLastInterval = 0;
+			this.linesInLastInterVal = 0;
 			this.startTimeStamp = 0;
+			this.LPSInLastInterval = 0;
 		}
 
 		public void addLines( long lines, TimeRange timeRange )
@@ -178,24 +192,28 @@ public class LineStatistics
 
 			if ( ( timeRange.getEnd( ) - this.startTimeStamp ) >= this.intervalInMs.getMilliseconds( ) )
 			{
+				float elapsedTimeInS = ( timeRange.getEnd( ) - this.startTimeStamp ) / 1000f;
+				this.LPSInLastInterval = this.accumulatedLines / ( float ) elapsedTimeInS;
+				this.linesInLastInterVal = this.accumulatedLines;
 				this.reset( );
-			}
-			else
-			{
-				this.linesInLastInterval = this.accumulatedLines;
 			}
 		}
 
 		public void reset( )
 		{
-			this.linesInLastInterval = this.accumulatedLines;
 			this.startTimeStamp = 0;
 			this.accumulatedLines = 0;
 		}
 
-		public long getLinesInLastInterval( )
+		public long getLinesInLastInterVal( )
 		{
-			return linesInLastInterval;
+			return linesInLastInterVal;
 		}
+
+		public float getLPSInLastInterval( )
+		{
+			return LPSInLastInterval;
+		}
+
 	}
 }
