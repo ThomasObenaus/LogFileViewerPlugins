@@ -11,7 +11,6 @@
 package thobe.logfileviewer.plugins.linestats.gui;
 
 import java.awt.BorderLayout;
-import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
@@ -35,6 +34,7 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
 import thobe.logfileviewer.plugin.api.IPluginUIComponent;
+import thobe.logfileviewer.plugins.linestats.IClockListener;
 import thobe.logfileviewer.plugins.linestats.ILineStatsPluginListener;
 import thobe.logfileviewer.plugins.linestats.LineStatistics;
 import thobe.logfileviewer.plugins.linestats.LineStatsPlugin;
@@ -53,8 +53,9 @@ import com.jgoodies.forms.layout.FormLayout;
  * @date Apr 19, 2015
  */
 @SuppressWarnings ( "serial")
-public class LineStatsPanel extends JPanel implements IPluginUIComponent, ILineStatsPluginListener
+public class LineStatsPanel extends JPanel implements IPluginUIComponent, ILineStatsPluginListener, IClockListener
 {
+	private final static String				CLOCK_PREFIX	= "Elapsed: ";
 	private LineStatsPlugin					lineStats;
 
 	private RestrictedTextFieldRegexp		rtf_filter;
@@ -73,9 +74,13 @@ public class LineStatsPanel extends JPanel implements IPluginUIComponent, ILineS
 	private List<ILineStatsPanelListener>	listeners;
 
 	private Logger							log;
+	private JLabel							l_clock;
+	private JLabel							l_clockErrCount;
+	private List<String>					clockErrors;
 
 	public LineStatsPanel( Logger log, LineStatsPlugin lineStats )
 	{
+		this.clockErrors = new ArrayList<String>( );
 		this.log = log;
 		this.lineStats = lineStats;
 		this.listeners = new ArrayList<>( );
@@ -181,10 +186,22 @@ public class LineStatsPanel extends JPanel implements IPluginUIComponent, ILineS
 		this.addListener( pa_tableView );
 
 		// buttons
-		JPanel pa_buttons = new JPanel( new FlowLayout( FlowLayout.RIGHT ) );
+		FormLayout fla_buttons = new FormLayout( "3dlu,17dlu,3dlu,80dlu,3dlu,40dlu,3dlu,fill:default:grow,3dlu,default,3dlu,default,3dlu,default,3dlu", "3dlu,default,3dlu" );
+		CellConstraints cc_buttons = new CellConstraints( );
+		JPanel pa_buttons = new JPanel( fla_buttons );
 		this.add( pa_buttons, BorderLayout.SOUTH );
+
+		JLabel l_clockIcon = new JLabel( LS_IconLib.get( ).getIcon( LS_IconType.ADD, true, IconSize.S16x16 ) );
+		pa_buttons.add( l_clockIcon, cc_buttons.xy( 2, 2 ) );
+
+		this.l_clock = new JLabel( CLOCK_PREFIX + "0s" );
+		pa_buttons.add( this.l_clock, cc_buttons.xy( 4, 2 ) );
+
+		this.l_clockErrCount = new JLabel( );
+		pa_buttons.add( this.l_clockErrCount, cc_buttons.xy( 6, 2 ) );
+
 		this.bu_start = new JButton( "start" );
-		pa_buttons.add( this.bu_start );
+		pa_buttons.add( this.bu_start, cc_buttons.xy( 10, 2 ) );
 		this.bu_start.addActionListener( new ActionListener( )
 		{
 			@Override
@@ -194,7 +211,7 @@ public class LineStatsPanel extends JPanel implements IPluginUIComponent, ILineS
 			}
 		} );
 		this.bu_stop = new JButton( "stop" );
-		pa_buttons.add( this.bu_stop );
+		pa_buttons.add( this.bu_stop, cc_buttons.xy( 12, 2 ) );
 		this.bu_stop.addActionListener( new ActionListener( )
 		{
 			@Override
@@ -205,7 +222,7 @@ public class LineStatsPanel extends JPanel implements IPluginUIComponent, ILineS
 		} );
 
 		this.bu_startInterval = new JButton( "start I" );
-		pa_buttons.add( this.bu_startInterval );
+		pa_buttons.add( this.bu_startInterval, cc_buttons.xy( 14, 2 ) );
 		this.bu_startInterval.addActionListener( new ActionListener( )
 		{
 			@Override
@@ -461,6 +478,28 @@ public class LineStatsPanel extends JPanel implements IPluginUIComponent, ILineS
 	public void onStopTracing( )
 	{
 		this.updateTask.setFireEnabled( false );
+	}
+
+	@Override
+	public void onTimeUpdated( long currentTime, long elapsedTime )
+	{
+		this.l_clock.setText( CLOCK_PREFIX + String.format( "%.2f", elapsedTime / 1000f ) + "s" );
+	}
+
+	@Override
+	public void onReset( )
+	{
+		this.l_clock.setText( CLOCK_PREFIX + "0s" );
+		this.clockErrors.clear( );
+		this.l_clockErrCount.setText( "" );
+	}
+
+	@Override
+	public void onError( String err )
+	{
+		this.clockErrors.add( err );
+		this.l_clockErrCount.setText( "<html><font color=\"#FF0000\">" + this.clockErrors.size( ) + "</font></html>" );
+
 	}
 
 }

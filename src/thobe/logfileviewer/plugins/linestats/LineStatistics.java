@@ -50,14 +50,14 @@ public class LineStatistics
 	 * Resets the complete stattistic and takes the new start-time for the next interval.
 	 * @param startTimeStamp
 	 */
-	public void reset( long startTimeStamp )
+	public void reset( )
 	{
-		this.startTimeStamp = startTimeStamp;
+		this.startTimeStamp = 0;
 		this.accumulatedLines = 0;
 		this.elapsedTime = 0;
 		for ( Map.Entry<LinesInLastNMilliseconds, IntervalAccumulator> e : this.linesInLastNSeconds.entrySet( ) )
 		{
-			e.getValue( ).reset( startTimeStamp );
+			e.getValue( ).reset( );
 		}
 	}
 
@@ -75,13 +75,18 @@ public class LineStatistics
 		return this.elapsedTime;
 	}
 
-	public void addLines( long lines, long newTimeStamp )
+	public void addLines( long lines, TimeRange timeRange )
 	{
+		if ( this.startTimeStamp == 0 )
+		{
+			this.startTimeStamp = timeRange.getStart( );
+		}
+
 		this.accumulatedLines += lines;
-		this.elapsedTime = newTimeStamp - startTimeStamp;
+		this.elapsedTime = timeRange.getEnd( ) - startTimeStamp;
 		for ( Map.Entry<LinesInLastNMilliseconds, IntervalAccumulator> e : this.linesInLastNSeconds.entrySet( ) )
 		{
-			e.getValue( ).addLines( lines, newTimeStamp );
+			e.getValue( ).addLines( lines, timeRange );
 		}
 
 	}
@@ -154,7 +159,6 @@ public class LineStatistics
 		private long						accumulatedLines;
 		private long						linesInLastInterval;
 		private long						startTimeStamp;
-		private boolean						initThresholdMet;
 
 		public IntervalAccumulator( LinesInLastNMilliseconds intervalInMs )
 		{
@@ -162,31 +166,31 @@ public class LineStatistics
 			this.accumulatedLines = 0;
 			this.linesInLastInterval = 0;
 			this.startTimeStamp = 0;
-			this.initThresholdMet = false;
 		}
 
-		public void addLines( long lines, long newTimeStamp )
+		public void addLines( long lines, TimeRange timeRange )
 		{
 			this.accumulatedLines += lines;
-
-			if ( ( newTimeStamp - this.startTimeStamp ) >= this.intervalInMs.getMilliseconds( ) )
+			if ( this.startTimeStamp == 0 )
 			{
-				this.initThresholdMet = ( this.startTimeStamp != 0 );
-				this.reset( newTimeStamp );
+				this.startTimeStamp = timeRange.getStart( );
 			}
 
-			if ( !this.initThresholdMet )
+			if ( ( timeRange.getEnd( ) - this.startTimeStamp ) >= this.intervalInMs.getMilliseconds( ) )
+			{
+				this.reset( );
+			}
+			else
 			{
 				this.linesInLastInterval = this.accumulatedLines;
 			}
 		}
 
-		public void reset( long timeStamp )
+		public void reset( )
 		{
 			this.linesInLastInterval = this.accumulatedLines;
-			this.startTimeStamp = timeStamp;
+			this.startTimeStamp = 0;
 			this.accumulatedLines = 0;
-			this.initThresholdMet = false;
 		}
 
 		public long getLinesInLastInterval( )

@@ -55,13 +55,19 @@ public class LineStatsPlugin extends Plugin
 	private LineStatsPanel					pa_lineStats;
 	private LineStatPreferences				lineStatPrefs;
 
+	private Clock							clock;
+	private List<IClockListener>			clockListeners;
+
 	public LineStatsPlugin( )
 	{
 		super( L_NAME, L_NAME );
+		this.clockListeners = new ArrayList<IClockListener>( );
+		this.clock = new Clock( Pattern.compile( ".*iMX6.*" ) );
 		this.lineStatPrefs = new LineStatPreferences( LOG( ) );
 		this.listeners = new ArrayList<ILineStatsPluginListener>( );
 		this.pa_lineStats = new LineStatsPanel( LOG( ), this );
 		this.addListener( this.pa_lineStats );
+		this.addClockListener( this.pa_lineStats );
 
 		this.tracingRunning = false;
 		this.countsForCurrentRun = new HashMap<String, LineStatistics>( );
@@ -71,9 +77,14 @@ public class LineStatsPlugin extends Plugin
 		this.countsForCurrentRun.put( ALL_FILTER.toString( ), new LineStatistics( ALL_FILTER ) );
 		this.patLineCounter.put( ALL_FILTER, new Long( 0 ) );
 
-		this.llBuffer = new ArrayList<ILogLine>( );
+		this.llBuffer = new ArrayList<>( );
 		this.eventSemaphore = new Semaphore( 0, true );
 
+	}
+
+	public void addClockListener( IClockListener l )
+	{
+		this.clockListeners.add( l );
 	}
 
 	public void addListener( ILineStatsPluginListener l )
@@ -91,20 +102,22 @@ public class LineStatsPlugin extends Plugin
 	{
 		LOG( ).info( this.getPluginName( ) + " entered main-loop" );
 
-		List<ILogLine> block = new ArrayList<>( );
+		List<ILogLine> llBlocks = new ArrayList<>( );
 		while ( !this.isQuitRequested( ) )
 		{
-
-			block.clear( );
+			llBlocks.clear( );
 
 			// collect all lines
 			synchronized ( this.llBuffer )
 			{
-				block.addAll( this.llBuffer );
-				this.llBuffer.clear( );
-			}
+				if ( !this.llBuffer.isEmpty( ) )
+				{
+					llBlocks.addAll( this.llBuffer );
+					this.llBuffer.clear( );
+				}
+			}// synchronized ( this.llBuffer )
 
-			this.updateCounters( block );
+			this.updateCounters( llBlocks );
 
 			try
 			{
@@ -126,9 +139,8 @@ public class LineStatsPlugin extends Plugin
 	 */
 	public LineStatistics addFilter( Pattern filter )
 	{
-		long startedAt = System.currentTimeMillis( );
 		LineStatistics added = new LineStatistics( filter );
-		added.reset( startedAt );
+		added.reset( );
 
 		synchronized ( this.countsForCurrentRun )
 		{
@@ -146,12 +158,11 @@ public class LineStatsPlugin extends Plugin
 
 	public List<LineStatistics> addFilters( List<Pattern> filters )
 	{
-		long startedAt = System.currentTimeMillis( );
 		List<LineStatistics> tmp = new ArrayList<LineStatistics>( );
 		for ( Pattern pat : filters )
 		{
 			LineStatistics added = new LineStatistics( pat );
-			added.reset( startedAt );
+			added.reset( );
 			tmp.add( added );
 		}
 
@@ -210,12 +221,14 @@ public class LineStatsPlugin extends Plugin
 	{
 		synchronized ( countsForCurrentRun )
 		{
+			this.clock.reset( );
+			this.fireClockReset( );
 			this.tracingRunning = true;
 			this.startOfCurrentRun = System.currentTimeMillis( );
 
 			for ( Map.Entry<Pattern, Long> entry : this.patLineCounter.entrySet( ) )
 			{
-				this.countsForCurrentRun.get( entry.getKey( ).toString( ) ).reset( startOfCurrentRun );
+				this.countsForCurrentRun.get( entry.getKey( ).toString( ) ).reset( );
 			}
 
 			LOG( ).info( this.getPluginName( ) + " Tracing started at " + this.startOfCurrentRun );
@@ -238,31 +251,50 @@ public class LineStatsPlugin extends Plugin
 
 	private void updateCounters( List<ILogLine> block )
 	{
-		long currentTime = System.currentTimeMillis( );
-
 		for ( Map.Entry<Pattern, Long> e : this.patLineCounter.entrySet( ) )
 		{
 			e.setValue( new Long( 0 ) );
 		}
 
-		for ( ILogLine l : block )
+		long start = this.clock.getCurrentTime( );
+
+		for ( ILogLine ll : block )
 		{
-			for ( Map.Entry<Pattern, Long> entry : this.patLineCounter.entrySet( ) )
+			try
 			{
-				if ( PatternMatch.matches( entry.getKey( ), l ) )
+				if ( this.clock.updateTime( ll ) )
 				{
-					entry.setValue( entry.getValue( ) + 1 );
-				}
-			}// for ( Map.Entry<Pattern, Long> entry : this.countsForCurrentRun.entrySet( ) )
-		}// for ( ILogLine l : block )
+					for ( Map.Entry<Pattern, Long> entry : this.patLineCounter.entrySet( ) )
+					{
+						if ( PatternMatch.matches( entry.getKey( ), ll ) )
+						{
+							entry.setValue( entry.getValue( ) + 1 );
+
+						}// if ( PatternMatch.matches( entry.getKey( ), ll ) )
+
+					}// for ( Map.Entry<Pattern, Long> entry : this.patLineCounter.entrySet( ) )
+				}// if ( this.clock.updateTime( ll ) )
+			}
+			catch ( ClockDetectedException e1 )
+			{
+				start = this.clock.getCurrentTime( );
+				LOG( ).warning( e1.getLocalizedMessage( ) );
+				this.fireClockError( e1.getLocalizedMessage( ) );
+			}
+
+		}// for ( ILogLine ll : block )
+
+		TimeRange timeRange = new TimeRange( start, this.clock.getCurrentTime( ) );
+		this.fireClockTimeUpdated( this.clock.getCurrentTime( ), this.clock.getElapsed( ) );
 
 		// Now update the counts
 		synchronized ( countsForCurrentRun )
 		{
 			for ( Map.Entry<Pattern, Long> entry : this.patLineCounter.entrySet( ) )
 			{
-				this.countsForCurrentRun.get( entry.getKey( ).toString( ) ).addLines( entry.getValue( ), currentTime );
-			}
+				Long value = entry.getValue( );
+				this.countsForCurrentRun.get( entry.getKey( ).toString( ) ).addLines( value, timeRange );
+			}// for ( Map.Entry<Pattern, Long> entry : this.patLineCounter.entrySet( ) )
 		}// synchronized ( countsForCurrentRun )
 	}
 
@@ -321,7 +353,7 @@ public class LineStatsPlugin extends Plugin
 
 		synchronized ( this.llBuffer )
 		{
-			if ( tracing )
+			if ( tracing && ( !blockOfLines.isEmpty( ) ) )
 			{
 				this.llBuffer.addAll( blockOfLines );
 			}
@@ -422,4 +454,29 @@ public class LineStatsPlugin extends Plugin
 		this.pa_lineStats.addFilters( filters );
 		return true;
 	}
+
+	private void fireClockTimeUpdated( long currentTime, long elapsedTime )
+	{
+		for ( IClockListener cl : this.clockListeners )
+		{
+			cl.onTimeUpdated( currentTime, elapsedTime );
+		}
+	}
+
+	private void fireClockReset( )
+	{
+		for ( IClockListener cl : this.clockListeners )
+		{
+			cl.onReset( );
+		}
+	}
+
+	private void fireClockError( String err )
+	{
+		for ( IClockListener cl : this.clockListeners )
+		{
+			cl.onError( err );
+		}
+	}
+
 }
