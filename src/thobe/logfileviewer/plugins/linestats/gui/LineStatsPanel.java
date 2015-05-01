@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
@@ -91,7 +90,7 @@ public class LineStatsPanel extends JPanel implements IPluginUIComponent, ILineS
 		this.listeners = new ArrayList<>( );
 		this.buildGUI( );
 
-		this.updateTask = new UpdateTask( 10000 );
+		this.updateTask = new UpdateTask( );
 		this.updateTask.start( );
 	}
 
@@ -464,15 +463,13 @@ public class LineStatsPanel extends JPanel implements IPluginUIComponent, ILineS
 	private class UpdateTask extends Thread
 	{
 		private AtomicBoolean	cancelRequested;
-		private int				interval;
 		private Semaphore		eventSemaphore;
 
 		private AtomicBoolean	fireEnabled;
 
-		public UpdateTask( int interval )
+		public UpdateTask( )
 		{
 			super( "LineStatsUpdateTimer" );
-			this.interval = interval;
 			this.cancelRequested = new AtomicBoolean( false );
 			this.eventSemaphore = new Semaphore( 0, true );
 			this.fireEnabled = new AtomicBoolean( false );
@@ -508,16 +505,14 @@ public class LineStatsPanel extends JPanel implements IPluginUIComponent, ILineS
 
 				try
 				{
-					this.eventSemaphore.tryAcquire( this.interval, TimeUnit.MILLISECONDS );
+					this.eventSemaphore.acquire( );
 				}
 				catch ( InterruptedException e )
 				{
 					break;
 				}
-
 			}
 		}
-
 	}
 
 	protected Logger LOG( )
