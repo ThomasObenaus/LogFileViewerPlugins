@@ -18,8 +18,23 @@ package thobe.logfileviewer.plugins.linestats;
 @SuppressWarnings ( "serial")
 public class ClockDetectedException extends Exception
 {
-	public ClockDetectedException( String cause )
+	private String	fullCause;
+	private String	nameOfClock;
+
+	public ClockDetectedException( String cause, String fullCause, String nameOfClock )
 	{
 		super( cause );
+		this.fullCause = fullCause;
+		this.nameOfClock = nameOfClock;
+	}
+
+	public String getFullCause( )
+	{
+		return fullCause;
+	}
+
+	public String getNameOfClock( )
+	{
+		return nameOfClock;
 	}
 }

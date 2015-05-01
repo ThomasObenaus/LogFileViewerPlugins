@@ -43,6 +43,7 @@ import thobe.logfileviewer.plugins.linestats.gui.icons.LS_IconType;
 import thobe.widgets.icons.IconSize;
 import thobe.widgets.textfield.RestrictedTextFieldAdapter;
 import thobe.widgets.textfield.RestrictedTextFieldRegexp;
+import thobe.widgets.textfield.RestrictedTextfieldListener;
 
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
@@ -55,10 +56,14 @@ import com.jgoodies.forms.layout.FormLayout;
 @SuppressWarnings ( "serial")
 public class LineStatsPanel extends JPanel implements IPluginUIComponent, ILineStatsPluginListener, IClockListener
 {
+	private static final Pattern			ALL_FILTER		= Pattern.compile( ".*" );
 	private final static String				CLOCK_PREFIX	= "Elapsed: ";
 	private LineStatsPlugin					lineStats;
 
 	private RestrictedTextFieldRegexp		rtf_filter;
+
+	private RestrictedTextFieldRegexp		rtf_clockFilter;
+
 	private JButton							bu_addFilter;
 	private JButton							bu_removeSelectedFilters;
 	private JButton							bu_addFiltersFromFile;
@@ -67,7 +72,6 @@ public class LineStatsPanel extends JPanel implements IPluginUIComponent, ILineS
 
 	private JButton							bu_start;
 	private JButton							bu_stop;
-	private JButton							bu_startInterval;
 
 	private UpdateTask						updateTask;
 
@@ -77,6 +81,7 @@ public class LineStatsPanel extends JPanel implements IPluginUIComponent, ILineS
 	private JLabel							l_clock;
 	private JLabel							l_clockErrCount;
 	private List<String>					clockErrors;
+	private RestrictedTextfieldListener		rtf_listener;
 
 	public LineStatsPanel( Logger log, LineStatsPlugin lineStats )
 	{
@@ -186,19 +191,48 @@ public class LineStatsPanel extends JPanel implements IPluginUIComponent, ILineS
 		this.addListener( pa_tableView );
 
 		// buttons
-		FormLayout fla_buttons = new FormLayout( "3dlu,17dlu,3dlu,80dlu,3dlu,40dlu,3dlu,fill:default:grow,3dlu,default,3dlu,default,3dlu,default,3dlu", "3dlu,default,3dlu" );
+		FormLayout fla_buttons = new FormLayout( "3dlu,17dlu,3dlu,fill:default,3dlu,80dlu,3dlu,fill:default:grow,3dlu,default,3dlu,default,3dlu", "3dlu,30dlu,3dlu" );
 		CellConstraints cc_buttons = new CellConstraints( );
-		JPanel pa_buttons = new JPanel( fla_buttons );
+		final JPanel pa_buttons = new JPanel( fla_buttons );
 		this.add( pa_buttons, BorderLayout.SOUTH );
 
-		JLabel l_clockIcon = new JLabel( LS_IconLib.get( ).getIcon( LS_IconType.ADD, true, IconSize.S16x16 ) );
-		pa_buttons.add( l_clockIcon, cc_buttons.xy( 2, 2 ) );
+		final JButton bu_clockFilter = new JButton( LS_IconLib.get( ).getIcon( LS_IconType.CLOCK, true, IconSize.S16x16 ) );
+		pa_buttons.add( bu_clockFilter, cc_buttons.xy( 2, 2 ) );
+		bu_clockFilter.addActionListener( new ActionListener( )
+		{
+			@Override
+			public void actionPerformed( ActionEvent e )
+			{
+				rtf_clockFilter.setVisible( !rtf_clockFilter.isVisible( ) );
+				pa_buttons.repaint( );
+				pa_buttons.revalidate( );
+			}
+		} );
+
+		this.rtf_clockFilter = new RestrictedTextFieldRegexp( 10 );
+		pa_buttons.add( this.rtf_clockFilter, cc_buttons.xy( 4, 2 ) );
+		this.rtf_clockFilter.setValue( ".*" );
+		this.rtf_clockFilter.setVisible( false );
+		this.rtf_listener = new RestrictedTextFieldAdapter( )
+		{
+			public void valueChangeCommitted( )
+			{
+				stopStatTracing( );
+				startStatTracing( );
+				bu_start.setEnabled( false );
+				bu_stop.setEnabled( true );
+				bu_clockFilter.setToolTipText( "<html>Define a clock-filter to ensure that in the logfiles to be considered only one clock is available.<br>Each log-line that does not matches the clock-filter will be ignored.<br>Current Clock-filter: <b>" + rtf_clockFilter.getValue( ) + "</b><br></html>" );
+			};
+		};
+		this.rtf_clockFilter.addListener( this.rtf_listener );
+
+		bu_clockFilter.setToolTipText( "<html>Define a clock-filter to ensure that in the logfiles to be considered only one clock is available.<br>Each log-line that does not matches the clock-filter will be ignored.<br>Current Clock-filter: <b>" + this.rtf_clockFilter.getValue( ) + "</b><br></html>" );
 
 		this.l_clock = new JLabel( CLOCK_PREFIX + "0s" );
-		pa_buttons.add( this.l_clock, cc_buttons.xy( 4, 2 ) );
+		pa_buttons.add( this.l_clock, cc_buttons.xy( 6, 2 ) );
 
 		this.l_clockErrCount = new JLabel( );
-		pa_buttons.add( this.l_clockErrCount, cc_buttons.xy( 6, 2 ) );
+		pa_buttons.add( this.l_clockErrCount, cc_buttons.xy( 8, 2 ) );
 
 		this.bu_start = new JButton( "start" );
 		pa_buttons.add( this.bu_start, cc_buttons.xy( 10, 2 ) );
@@ -207,7 +241,9 @@ public class LineStatsPanel extends JPanel implements IPluginUIComponent, ILineS
 			@Override
 			public void actionPerformed( ActionEvent e )
 			{
-				startStatTracing( false );
+				startStatTracing( );
+				bu_start.setEnabled( false );
+				bu_stop.setEnabled( true );
 			}
 		} );
 		this.bu_stop = new JButton( "stop" );
@@ -218,20 +254,22 @@ public class LineStatsPanel extends JPanel implements IPluginUIComponent, ILineS
 			public void actionPerformed( ActionEvent e )
 			{
 				stopStatTracing( );
+				bu_start.setEnabled( true );
+				bu_stop.setEnabled( false );
 			}
 		} );
+		bu_stop.setEnabled( false );
 
-		this.bu_startInterval = new JButton( "start I" );
-		pa_buttons.add( this.bu_startInterval, cc_buttons.xy( 14, 2 ) );
-		this.bu_startInterval.addActionListener( new ActionListener( )
+	}
+
+	public void setClockFilter( Pattern clockFilter )
+	{
+		if ( clockFilter != null )
 		{
-			@Override
-			public void actionPerformed( ActionEvent e )
-			{
-				startStatTracing( true );
-			}
-		} );
-
+			this.rtf_clockFilter.removeListener( this.rtf_listener );
+			this.rtf_clockFilter.setValue( clockFilter.toString( ) );
+			this.rtf_clockFilter.addListener( this.rtf_listener );
+		}
 	}
 
 	private void addFiltersFromFile( )
@@ -295,14 +333,45 @@ public class LineStatsPanel extends JPanel implements IPluginUIComponent, ILineS
 		}
 	}
 
-	private void startStatTracing( boolean startWithInterval )
+	private void startStatTracing( )
 	{
-		if ( startWithInterval )
-		{
-
-		}
 
 		this.lineStats.startStatTracing( );
+	}
+
+	public Pattern getClockFilter( )
+	{
+		Pattern result = null;
+		String clockFilterStr = this.rtf_clockFilter.getValue( );
+
+		if ( ( clockFilterStr != null ) && ( !clockFilterStr.trim( ).isEmpty( ) ) )
+		{
+			if ( !clockFilterStr.startsWith( ".*" ) )
+			{
+				clockFilterStr = ".*" + clockFilterStr;
+			}
+			if ( !clockFilterStr.endsWith( ".*" ) )
+			{
+				clockFilterStr += ".*";
+			}
+
+			try
+			{
+				result = Pattern.compile( clockFilterStr );
+			}
+			catch ( PatternSyntaxException e )
+			{
+
+				LOG( ).warning( "Ignore filter for clock '" + clockFilterStr + "' since it is invalid: " + e.getLocalizedMessage( ) );
+			}
+		}// if ( ( clockFilterStr != null ) && ( !clockFilterStr.trim( ).isEmpty( ) ) )
+
+		if ( result == null )
+		{
+			result = ALL_FILTER;
+		}
+
+		return result;
 	}
 
 	private void stopStatTracing( )
@@ -498,8 +567,7 @@ public class LineStatsPanel extends JPanel implements IPluginUIComponent, ILineS
 	public void onError( String err )
 	{
 		this.clockErrors.add( err );
-		this.l_clockErrCount.setText( "<html><font color=\"#FF0000\">" + this.clockErrors.size( ) + "</font></html>" );
-
+		this.l_clockErrCount.setText( "<html><font color=\"#FF0000\">Statistics reset because of Clock error (" + err + ") #Errors=" + this.clockErrors.size( ) + ". Please define a clock-filter." + "</font></html>" );
 	}
 
 }

@@ -23,19 +23,18 @@ import thobe.logfileviewer.plugin.util.PatternMatch;
 public class Clock
 {
 
-	private Pattern					pat;
-	private long					start;
-	private long					currentTime;
+	private Pattern	pat;
+	private long	start;
+	private long	currentTime;
 
 	public Clock( Pattern pat )
 	{
-		
+
 		this.pat = pat;
 		this.currentTime = 0;
 		this.start = 0;
 	}
 
-	
 	public long getCurrentTime( )
 	{
 		return currentTime;
@@ -44,6 +43,11 @@ public class Clock
 	public long getStart( )
 	{
 		return start;
+	}
+
+	public Pattern getClockFilter( )
+	{
+		return pat;
 	}
 
 	public long getElapsed( )
@@ -66,10 +70,9 @@ public class Clock
 
 			if ( tsOfCurrentLL < this.currentTime )
 			{
-				this.reset( );
 				this.start = tsOfCurrentLL;
 				this.currentTime = tsOfCurrentLL;
-				throw new ClockDetectedException( "[" + this.pat.toString( ) + "] Reverse clock detected: " + ll.getData( ) );
+				throw new ClockDetectedException( "Reverse clock detected", ll.getData( ), this.pat.toString( ) );
 			}
 
 			this.currentTime = tsOfCurrentLL;
@@ -78,8 +81,9 @@ public class Clock
 		return result;
 	}
 
-	public void reset( )
+	public void reset( Pattern pat )
 	{
+		this.pat = pat;
 		this.start = 0;
 		this.currentTime = 0;
 	}

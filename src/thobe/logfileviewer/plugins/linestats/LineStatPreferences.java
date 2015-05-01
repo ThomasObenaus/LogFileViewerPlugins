@@ -16,6 +16,8 @@ import java.util.List;
 import java.util.logging.Logger;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import thobe.logfileviewer.plugin.api.IPluginPreferences;
 
@@ -29,16 +31,28 @@ public class LineStatPreferences implements IPluginPreferences
 	private static final String	NODE_FILTERS			= "filters";
 	private static final String	PRP_FILTER_FILE_PATH	= "filterFilePath";
 	private static final String	PRP_FILTER				= "filter";
+	private static final String	PRP_CLOCK_FILTER		= "clock-filter";
 
 	private File				fileFilterPath;
 	private List<String>		filters;
 	private Logger				log;
+	private Pattern				clockFilter;
 
 	public LineStatPreferences( Logger log )
 	{
 		this.log = log;
 		this.fileFilterPath = new File( "" );
 		this.filters = new ArrayList<String>( );
+	}
+
+	public void setClockFilter( Pattern clockFilter )
+	{
+		this.clockFilter = clockFilter;
+	}
+
+	public Pattern getClockFilter( )
+	{
+		return this.clockFilter;
 	}
 
 	public void setFilters( List<String> filters )
@@ -67,6 +81,19 @@ public class LineStatPreferences implements IPluginPreferences
 		String fileFilterPathStr = pluginPrefRoot.get( PRP_FILTER_FILE_PATH, "" );
 		this.fileFilterPath = new File( fileFilterPathStr );
 
+		String clockFilterStr = pluginPrefRoot.get( PRP_CLOCK_FILTER, "" );
+		this.clockFilter = null;
+		if ( ( clockFilterStr != null ) && ( !clockFilterStr.trim( ).isEmpty( ) ) )
+		{
+			try
+			{
+				this.clockFilter = Pattern.compile( clockFilterStr );
+			}
+			catch ( PatternSyntaxException e )
+			{
+				LOG( ).warning( "Ignore clock-filter '" + clockFilterStr + "' since it is not a valid filter: " + e.getLocalizedMessage( ) );
+			}
+		}
 		// load persisted filters
 		this.filters.clear( );
 		Preferences filtersNode = pluginPrefRoot.node( NODE_FILTERS );
@@ -89,6 +116,12 @@ public class LineStatPreferences implements IPluginPreferences
 	public void save( Preferences pluginPrefRoot )
 	{
 		pluginPrefRoot.put( PRP_FILTER_FILE_PATH, this.fileFilterPath.getAbsolutePath( ) );
+		String clockFilterStr = "";
+		if ( this.clockFilter != null )
+		{
+			clockFilterStr = this.clockFilter.toString( );
+		}
+		pluginPrefRoot.put( PRP_CLOCK_FILTER, clockFilterStr );
 
 		// persist filters
 		Preferences filtersNode = pluginPrefRoot.node( NODE_FILTERS );

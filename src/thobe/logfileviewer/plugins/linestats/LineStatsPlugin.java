@@ -62,8 +62,9 @@ public class LineStatsPlugin extends Plugin
 	{
 		super( L_NAME, L_NAME );
 		this.clockListeners = new ArrayList<IClockListener>( );
-		this.clock = new Clock( Pattern.compile( ".*iMX6.*" ) );
 		this.lineStatPrefs = new LineStatPreferences( LOG( ) );
+
+		this.clock = new Clock( Pattern.compile( ".*" ) );
 		this.listeners = new ArrayList<ILineStatsPluginListener>( );
 		this.pa_lineStats = new LineStatsPanel( LOG( ), this );
 		this.addListener( this.pa_lineStats );
@@ -221,7 +222,9 @@ public class LineStatsPlugin extends Plugin
 	{
 		synchronized ( countsForCurrentRun )
 		{
-			this.clock.reset( );
+			Pattern clockFilter = this.pa_lineStats.getClockFilter( );
+			this.lineStatPrefs.setClockFilter( clockFilter );
+			this.clock.reset( clockFilter );
 			this.fireClockReset( );
 			this.tracingRunning = true;
 			this.startOfCurrentRun = System.currentTimeMillis( );
@@ -302,7 +305,7 @@ public class LineStatsPlugin extends Plugin
 		catch ( ClockDetectedException e1 )
 		{
 			this.resetInternalCounters( );
-			LOG( ).warning( e1.getLocalizedMessage( ) );
+			LOG( ).warning( "[" + e1.getNameOfClock( ) + "] " + e1.getLocalizedMessage( ) + ": " + e1.getFullCause( ) );
 			this.fireClockError( e1.getLocalizedMessage( ) );
 		}
 
@@ -462,6 +465,7 @@ public class LineStatsPlugin extends Plugin
 		}// for ( String filterStr : persistedFilters )
 
 		this.pa_lineStats.addFilters( filters );
+		this.pa_lineStats.setClockFilter( this.lineStatPrefs.getClockFilter( ) );
 		return true;
 	}
 
