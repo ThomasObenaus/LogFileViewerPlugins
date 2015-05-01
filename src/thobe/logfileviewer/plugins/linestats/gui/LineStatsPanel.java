@@ -68,6 +68,7 @@ public class LineStatsPanel extends JPanel implements IPluginUIComponent, ILineS
 	private JButton							bu_removeSelectedFilters;
 	private JButton							bu_addFiltersFromFile;
 	private JButton							bu_clockFilter;
+	private JButton							bu_exportFilters;
 
 	private TableViewPanel					pa_tableView;
 
@@ -105,7 +106,7 @@ public class LineStatsPanel extends JPanel implements IPluginUIComponent, ILineS
 		this.setLayout( new BorderLayout( ) );
 
 		// Add filter panel
-		FormLayout fla_filter = new FormLayout( "3dlu,50dlu,3dlu,fill:default:grow,3dlu,default,3dlu,default,3dlu,default,3dlu", "3dlu,default,3dlu" );
+		FormLayout fla_filter = new FormLayout( "3dlu,50dlu,3dlu,fill:default:grow,3dlu,default,3dlu,default,3dlu,default,3dlu,default,3dlu", "3dlu,default,3dlu" );
 		CellConstraints cc_filter = new CellConstraints( );
 		JPanel pa_filter = new JPanel( fla_filter );
 		this.add( pa_filter, BorderLayout.NORTH );
@@ -180,6 +181,17 @@ public class LineStatsPanel extends JPanel implements IPluginUIComponent, ILineS
 				removeSelectedFilters( );
 			}
 		} );
+		this.bu_exportFilters = new JButton( LS_IconLib.get( ).getIcon( LS_IconType.EXPORT_FILTERS_TO_FILE, true, IconSize.S16x16 ) );
+		pa_filter.add( this.bu_exportFilters, cc_filter.xy( 12, 2 ) );
+		this.bu_exportFilters.setToolTipText( "Export filters to file" );
+		this.bu_exportFilters.addActionListener( new ActionListener( )
+		{
+			@Override
+			public void actionPerformed( ActionEvent e )
+			{
+				exportFiltersToFile( );
+			}
+		} );
 
 		// main view
 		JTabbedPane tab_main = new JTabbedPane( JTabbedPane.BOTTOM );
@@ -244,6 +256,18 @@ public class LineStatsPanel extends JPanel implements IPluginUIComponent, ILineS
 				}
 			}
 		} );
+	}
+
+	private void exportFiltersToFile( )
+	{
+		JFileChooser fc = new JFileChooser( this.lineStats.getPrefs( ).getFileFilterPath( ) );
+		fc.setFileSelectionMode( JFileChooser.FILES_ONLY );
+		fc.setDialogTitle( "Export filters to file" );
+		if ( fc.showSaveDialog( this ) == JFileChooser.APPROVE_OPTION )
+		{
+			this.lineStats.exportFiltersToFile( fc.getSelectedFile( ) );
+			this.lineStats.getPrefs( ).setFileFilterPath( fc.getSelectedFile( ) );
+		}
 	}
 
 	public void setClockFilter( Pattern clockFilter )

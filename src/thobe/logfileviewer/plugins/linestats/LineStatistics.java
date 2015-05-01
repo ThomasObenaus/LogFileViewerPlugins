@@ -94,6 +94,7 @@ public class LineStatistics
 		this.accumulatedLines = 0;
 		this.elapsedTime = 0;
 		this.peakLPS = 0;
+		this.lowLPS = 0;
 		for ( Map.Entry<LinesInLastNMilliseconds, IntervalAccumulator> e : this.linesInLastNSeconds.entrySet( ) )
 		{
 			e.getValue( ).resetCompleteData( );

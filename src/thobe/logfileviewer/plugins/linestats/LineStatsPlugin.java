@@ -10,6 +10,10 @@
 
 package thobe.logfileviewer.plugins.linestats;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -87,6 +91,32 @@ public class LineStatsPlugin extends Plugin
 	public void addListener( ILineStatsPluginListener l )
 	{
 		this.listeners.add( l );
+	}
+
+	public void exportFiltersToFile( File file )
+	{
+		if ( ( file == null ) || file.isDirectory( ) || ( !file.getParentFile( ).canWrite( ) ) )
+		{
+			LOG( ).severe( "Can't export filters since file '" + file + "' is not valid." );
+		}// if ( ( file == null ) || file.isDirectory( ) || ( !file.getParentFile( ).canWrite( ) ) )
+		else
+		{
+			try
+			{
+				BufferedWriter br = new BufferedWriter( new FileWriter( file ) );
+
+				for ( Map.Entry<String, LineStatistics> entry : this.countsForCurrentRun.entrySet( ) )
+				{
+					br.write( entry.getValue( ).getFilter( ).toString( ) + "\n" );
+				}// for ( Map.Entry<String, LineStatistics> entry : this.countsForCurrentRun.entrySet( ) )
+
+				br.close( );
+			}
+			catch ( IOException e )
+			{
+				LOG( ).severe( "Can't export filters: " + e.getLocalizedMessage( ) );
+			}
+		}// if ( ( file == null ) || file.isDirectory( ) || ( !file.getParentFile( ).canWrite( ) ) ) ... else ...
 	}
 
 	@Override
