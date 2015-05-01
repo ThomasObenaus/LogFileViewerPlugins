@@ -72,10 +72,6 @@ public class LineStatsPlugin extends Plugin
 		this.countsForCurrentRun = new HashMap<String, LineStatistics>( );
 		this.patLineCounter = new HashMap<Pattern, Long>( );
 
-		// add the all filter for the remaining log-lines
-		this.countsForCurrentRun.put( ALL_FILTER.toString( ), new LineStatistics( ALL_FILTER ) );
-		this.patLineCounter.put( ALL_FILTER, new Long( 0 ) );
-
 		this.llBuffer = new ArrayList<>( );
 		this.eventSemaphore = new Semaphore( 0, true );
 
@@ -450,6 +446,7 @@ public class LineStatsPlugin extends Plugin
 		// add persisted filters
 		List<String> persistedFilters = this.lineStatPrefs.getFilters( );
 		List<Pattern> filters = new ArrayList<Pattern>( );
+		filters.add( ALL_FILTER );
 		for ( String filterStr : persistedFilters )
 		{
 			try

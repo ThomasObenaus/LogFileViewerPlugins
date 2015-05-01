@@ -216,7 +216,7 @@ public class LS_TableModel extends AbstractTableModel
 
 		if ( columnIndex == 0 )
 		{
-			return ls.getFilter( ).toString( );
+			return ls.getFilterName( );
 		}
 		else if ( columnIndex == 1 )
 		{

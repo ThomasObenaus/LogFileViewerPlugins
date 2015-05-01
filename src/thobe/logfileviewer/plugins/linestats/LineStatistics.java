@@ -41,6 +41,33 @@ public class LineStatistics
 		this.linesInLastNSeconds.put( LinesInLastNMilliseconds.LINES_IN_LAST_60_SECONDS, new IntervalAccumulator( LinesInLastNMilliseconds.LINES_IN_LAST_60_SECONDS ) );
 	}
 
+	public String getFilterName( )
+	{
+		String result = "UNKNOWN";
+
+		if ( this.filter != null )
+		{
+			result = this.filter.toString( );
+
+			if ( result.startsWith( ".*" ) )
+			{
+				result = result.substring( 2, result.length( ) );
+			}
+
+			if ( result.endsWith( ".*" ) )
+			{
+				result = result.substring( 0, result.length( ) - 2 );
+			}
+
+			if ( result.trim( ).isEmpty( ) )
+			{
+				result = "ALL";
+			}
+		}// if ( this.filter != null )
+
+		return result;
+	}
+
 	public Pattern getFilter( )
 	{
 		return filter;
