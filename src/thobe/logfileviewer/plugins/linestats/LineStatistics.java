@@ -57,7 +57,7 @@ public class LineStatistics
 		this.elapsedTime = 0;
 		for ( Map.Entry<LinesInLastNMilliseconds, IntervalAccumulator> e : this.linesInLastNSeconds.entrySet( ) )
 		{
-			e.getValue( ).reset( );
+			e.getValue( ).resetCompleteData( );
 		}
 	}
 
@@ -195,14 +195,22 @@ public class LineStatistics
 				float elapsedTimeInS = ( timeRange.getEnd( ) - this.startTimeStamp ) / 1000f;
 				this.LPSInLastInterval = this.accumulatedLines / ( float ) elapsedTimeInS;
 				this.linesInLastInterVal = this.accumulatedLines;
-				this.reset( );
+				this.newIntervalStarts( );
 			}
 		}
 
-		public void reset( )
+		public void newIntervalStarts( )
 		{
 			this.startTimeStamp = 0;
 			this.accumulatedLines = 0;
+		}
+
+		public void resetCompleteData( )
+		{
+			this.startTimeStamp = 0;
+			this.accumulatedLines = 0;
+			this.linesInLastInterVal = 0;
+			this.LPSInLastInterval = 0;
 		}
 
 		public long getLinesInLastInterVal( )

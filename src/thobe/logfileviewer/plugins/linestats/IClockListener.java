@@ -19,7 +19,5 @@ public interface IClockListener
 {
 	public void onTimeUpdated( long currentTime,long elapsedTime );
 
-	public void onReset( );
-
 	public void onError( String err );
 }

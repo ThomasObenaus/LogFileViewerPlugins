@@ -91,7 +91,7 @@ public class LineStatsPanel extends JPanel implements IPluginUIComponent, ILineS
 		this.listeners = new ArrayList<>( );
 		this.buildGUI( );
 
-		this.updateTask = new UpdateTask( 2000 );
+		this.updateTask = new UpdateTask( 10000 );
 		this.updateTask.start( );
 	}
 
@@ -168,7 +168,6 @@ public class LineStatsPanel extends JPanel implements IPluginUIComponent, ILineS
 			{
 				addFiltersFromFile( );
 			}
-
 		} );
 		this.bu_removeSelectedFilters = new JButton( LS_IconLib.get( ).getIcon( LS_IconType.REMOVE_SELECTED_FILTERS, true, IconSize.S16x16 ) );
 		pa_filter.add( this.bu_removeSelectedFilters, cc_filter.xy( 10, 2 ) );
@@ -180,7 +179,6 @@ public class LineStatsPanel extends JPanel implements IPluginUIComponent, ILineS
 			{
 				removeSelectedFilters( );
 			}
-
 		} );
 
 		// main view
@@ -219,8 +217,6 @@ public class LineStatsPanel extends JPanel implements IPluginUIComponent, ILineS
 			{
 				stopStatTracing( );
 				startStatTracing( );
-				bu_start.setEnabled( false );
-				bu_stop.setEnabled( true );
 				bu_clockFilter.setToolTipText( "<html>Define a clock-filter to ensure that in the logfiles to be considered only one clock is available.<br>Each log-line that does not matches the clock-filter will be ignored.<br>Current Clock-filter: <b>" + rtf_clockFilter.getValue( ) + "</b><br></html>" );
 			};
 		};
@@ -242,8 +238,6 @@ public class LineStatsPanel extends JPanel implements IPluginUIComponent, ILineS
 			public void actionPerformed( ActionEvent e )
 			{
 				startStatTracing( );
-				bu_start.setEnabled( false );
-				bu_stop.setEnabled( true );
 			}
 		} );
 		this.bu_stop = new JButton( "stop" );
@@ -254,8 +248,6 @@ public class LineStatsPanel extends JPanel implements IPluginUIComponent, ILineS
 			public void actionPerformed( ActionEvent e )
 			{
 				stopStatTracing( );
-				bu_start.setEnabled( true );
-				bu_stop.setEnabled( false );
 			}
 		} );
 		bu_stop.setEnabled( false );
@@ -335,7 +327,6 @@ public class LineStatsPanel extends JPanel implements IPluginUIComponent, ILineS
 
 	private void startStatTracing( )
 	{
-
 		this.lineStats.startStatTracing( );
 	}
 
@@ -346,15 +337,7 @@ public class LineStatsPanel extends JPanel implements IPluginUIComponent, ILineS
 
 		if ( ( clockFilterStr != null ) && ( !clockFilterStr.trim( ).isEmpty( ) ) )
 		{
-			if ( !clockFilterStr.startsWith( ".*" ) )
-			{
-				clockFilterStr = ".*" + clockFilterStr;
-			}
-			if ( !clockFilterStr.endsWith( ".*" ) )
-			{
-				clockFilterStr += ".*";
-			}
-
+			clockFilterStr = addLeadingAndTralingAllPattern( clockFilterStr );
 			try
 			{
 				result = Pattern.compile( clockFilterStr );
@@ -495,6 +478,11 @@ public class LineStatsPanel extends JPanel implements IPluginUIComponent, ILineS
 			this.fireEnabled = new AtomicBoolean( false );
 		}
 
+		public void updateNow( )
+		{
+			this.eventSemaphore.release( );
+		}
+
 		public void setFireEnabled( boolean fireEnabled )
 		{
 			this.fireEnabled.set( fireEnabled );
@@ -540,32 +528,36 @@ public class LineStatsPanel extends JPanel implements IPluginUIComponent, ILineS
 	@Override
 	public void onStartTracing( )
 	{
+		this.l_clock.setText( CLOCK_PREFIX + "0s" );
+		this.clockErrors.clear( );
+		this.l_clockErrCount.setText( "" );
 		this.updateTask.setFireEnabled( true );
+		this.updateTask.updateNow( );
+
+		bu_start.setEnabled( false );
+		bu_stop.setEnabled( true );
 	}
 
 	@Override
 	public void onStopTracing( )
 	{
 		this.updateTask.setFireEnabled( false );
+
+		bu_start.setEnabled( true );
+		bu_stop.setEnabled( false );
 	}
 
 	@Override
 	public void onTimeUpdated( long currentTime, long elapsedTime )
 	{
+		this.updateTask.updateNow( );
 		this.l_clock.setText( CLOCK_PREFIX + String.format( "%.2f", elapsedTime / 1000f ) + "s" );
-	}
-
-	@Override
-	public void onReset( )
-	{
-		this.l_clock.setText( CLOCK_PREFIX + "0s" );
-		this.clockErrors.clear( );
-		this.l_clockErrCount.setText( "" );
 	}
 
 	@Override
 	public void onError( String err )
 	{
+		this.updateTask.updateNow( );
 		this.clockErrors.add( err );
 		this.l_clockErrCount.setText( "<html><font color=\"#FF0000\">Statistics reset because of Clock error (" + err + ") #Errors=" + this.clockErrors.size( ) + ". Please define a clock-filter." + "</font></html>" );
 	}

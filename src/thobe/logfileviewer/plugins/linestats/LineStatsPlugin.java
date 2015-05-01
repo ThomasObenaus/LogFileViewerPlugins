@@ -15,7 +15,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
@@ -44,7 +43,6 @@ public class LineStatsPlugin extends Plugin
 
 	private Map<String, LineStatistics>		countsForCurrentRun;
 	private Map<Pattern, Long>				patLineCounter;
-	private long							startOfCurrentRun;
 
 	private List<ILogLine>					llBuffer;
 	private Semaphore						eventSemaphore;
@@ -122,7 +120,7 @@ public class LineStatsPlugin extends Plugin
 
 			try
 			{
-				this.eventSemaphore.tryAcquire( 500, TimeUnit.MILLISECONDS );
+				this.eventSemaphore.acquire( );
 			}
 			catch ( InterruptedException e )
 			{
@@ -225,16 +223,11 @@ public class LineStatsPlugin extends Plugin
 			Pattern clockFilter = this.pa_lineStats.getClockFilter( );
 			this.lineStatPrefs.setClockFilter( clockFilter );
 			this.clock.reset( clockFilter );
-			this.fireClockReset( );
 			this.tracingRunning = true;
-			this.startOfCurrentRun = System.currentTimeMillis( );
 
-			for ( Map.Entry<Pattern, Long> entry : this.patLineCounter.entrySet( ) )
-			{
-				this.countsForCurrentRun.get( entry.getKey( ).toString( ) ).reset( );
-			}
+			this.resetInternalCounters( );
 
-			LOG( ).info( this.getPluginName( ) + " Tracing started at " + this.startOfCurrentRun );
+			LOG( ).info( this.getPluginName( ) + " Tracing started" );
 		}// synchronized ( countsForCurrentRun )
 
 		this.fireTracingStarted( );
@@ -246,7 +239,7 @@ public class LineStatsPlugin extends Plugin
 		synchronized ( countsForCurrentRun )
 		{
 			this.tracingRunning = false;
-			LOG( ).info( this.getPluginName( ) + " Tracing stopped at " + System.currentTimeMillis( ) );
+			LOG( ).info( this.getPluginName( ) + " Tracing stopped" );
 		}
 		this.fireTracingStopped( );
 		this.eventSemaphore.release( );
@@ -257,6 +250,11 @@ public class LineStatsPlugin extends Plugin
 		// Now update the counts
 		synchronized ( countsForCurrentRun )
 		{
+			for ( Map.Entry<Pattern, Long> e : this.patLineCounter.entrySet( ) )
+			{
+				e.setValue( new Long( 0 ) );
+			}
+
 			for ( Map.Entry<String, LineStatistics> entry : this.countsForCurrentRun.entrySet( ) )
 			{
 				entry.getValue( ).reset( );
@@ -290,7 +288,6 @@ public class LineStatsPlugin extends Plugin
 			}// for ( ILogLine ll : block )
 
 			TimeRange timeRange = new TimeRange( start, this.clock.getCurrentTime( ) );
-			this.fireClockTimeUpdated( this.clock.getCurrentTime( ), this.clock.getElapsed( ) );
 
 			// Now update the counts
 			synchronized ( countsForCurrentRun )
@@ -301,6 +298,8 @@ public class LineStatsPlugin extends Plugin
 					this.countsForCurrentRun.get( entry.getKey( ).toString( ) ).addLines( value, timeRange );
 				}// for ( Map.Entry<Pattern, Long> entry : this.patLineCounter.entrySet( ) )
 			}// synchronized ( countsForCurrentRun )
+
+			this.fireClockTimeUpdated( this.clock.getCurrentTime( ), this.clock.getElapsed( ) );
 		}
 		catch ( ClockDetectedException e1 )
 		{
@@ -474,14 +473,6 @@ public class LineStatsPlugin extends Plugin
 		for ( IClockListener cl : this.clockListeners )
 		{
 			cl.onTimeUpdated( currentTime, elapsedTime );
-		}
-	}
-
-	private void fireClockReset( )
-	{
-		for ( IClockListener cl : this.clockListeners )
-		{
-			cl.onReset( );
 		}
 	}
 
