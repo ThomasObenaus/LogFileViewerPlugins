@@ -67,6 +67,7 @@ public class LineStatsPanel extends JPanel implements IPluginUIComponent, ILineS
 	private JButton							bu_addFilter;
 	private JButton							bu_removeSelectedFilters;
 	private JButton							bu_addFiltersFromFile;
+	private JButton							bu_clockFilter;
 
 	private TableViewPanel					pa_tableView;
 
@@ -188,12 +189,12 @@ public class LineStatsPanel extends JPanel implements IPluginUIComponent, ILineS
 		this.addListener( pa_tableView );
 
 		// buttons
-		FormLayout fla_buttons = new FormLayout( "3dlu,17dlu,3dlu,fill:default,3dlu,80dlu,3dlu,fill:default:grow,3dlu,default,3dlu", "3dlu,30dlu,3dlu" );
+		FormLayout fla_buttons = new FormLayout( "3dlu,default,3dlu,fill:default,3dlu,80dlu,3dlu,fill:default:grow,3dlu,default,3dlu", "3dlu,30dlu,3dlu" );
 		CellConstraints cc_buttons = new CellConstraints( );
 		final JPanel pa_buttons = new JPanel( fla_buttons );
 		this.add( pa_buttons, BorderLayout.SOUTH );
 
-		final JButton bu_clockFilter = new JButton( LS_IconLib.get( ).getIcon( LS_IconType.CLOCK, true, IconSize.S16x16 ) );
+		this.bu_clockFilter = new JButton( LS_IconLib.get( ).getIcon( LS_IconType.CLOCK, true, IconSize.S16x16 ) );
 		pa_buttons.add( bu_clockFilter, cc_buttons.xy( 2, 2 ) );
 		bu_clockFilter.addActionListener( new ActionListener( )
 		{
@@ -216,13 +217,9 @@ public class LineStatsPanel extends JPanel implements IPluginUIComponent, ILineS
 			{
 				stopStatTracing( );
 				startStatTracing( );
-				bu_clockFilter.setToolTipText( "<html>Define a clock-filter to ensure that in the logfiles to be considered only one clock is available.<br>Each log-line that does not matches the clock-filter will be ignored.<br>Current Clock-filter: <b>" + rtf_clockFilter.getValue( ) + "</b><br></html>" );
 			};
 		};
 		this.rtf_clockFilter.addListener( this.rtf_listener );
-
-		bu_clockFilter.setToolTipText( "<html>Define a clock-filter to ensure that in the logfiles to be considered only one clock is available.<br>Each log-line that does not matches the clock-filter will be ignored.<br>Current Clock-filter: <b>" + this.rtf_clockFilter.getValue( ) + "</b><br></html>" );
-
 		this.l_clock = new JLabel( CLOCK_PREFIX + "0s" );
 		pa_buttons.add( this.l_clock, cc_buttons.xy( 6, 2 ) );
 
@@ -274,6 +271,8 @@ public class LineStatsPanel extends JPanel implements IPluginUIComponent, ILineS
 			}
 
 			this.rtf_clockFilter.setValue( clockFilterString );
+			bu_clockFilter.setToolTipText( "<html>Define a clock-filter to ensure that in the logfiles to be considered only one clock is available.<br>Each log-line that does not matches the clock-filter will be ignored.<br>Current Clock-filter: <b>" + this.rtf_clockFilter.getValue( ) + "</b><br></html>" );
+			bu_clockFilter.setText( "Clock: '" + this.rtf_clockFilter.getValue( ) + "'" );
 			this.rtf_clockFilter.addListener( this.rtf_listener );
 		}// if ( clockFilter != null )
 	}
@@ -341,6 +340,8 @@ public class LineStatsPanel extends JPanel implements IPluginUIComponent, ILineS
 
 	private void startStatTracing( )
 	{
+		bu_clockFilter.setText( "Clock: '" + this.rtf_clockFilter.getValue( ) + "'" );
+		bu_clockFilter.setToolTipText( "<html>Define a clock-filter to ensure that in the logfiles to be considered only one clock is available.<br>Each log-line that does not matches the clock-filter will be ignored.<br>Current Clock-filter: <b>" + rtf_clockFilter.getValue( ) + "</b><br></html>" );
 		bu_startStop.setIcon( LS_IconLib.get( ).getIcon( LS_IconType.STOP_TRACING, true, IconSize.S16x16 ) );
 		bu_startStop.setToolTipText( "Stop tracing" );
 		this.lineStats.setTracingEnabled( true );
