@@ -21,12 +21,14 @@ import java.util.regex.Pattern;
  */
 public class LineStatistics
 {
+	private static final double									EPS	= 0.0009;
 	private Map<LinesInLastNMilliseconds, IntervalAccumulator>	linesInLastNSeconds;
 	private long												accumulatedLines;
 	private long												startTimeStamp;
 	private long												elapsedTime;
 	private Pattern												filter;
 	private double												peakLPS;
+	private double												lowLPS;
 
 	public LineStatistics( Pattern filter )
 	{
@@ -35,6 +37,7 @@ public class LineStatistics
 		this.startTimeStamp = 0;
 		this.elapsedTime = 0;
 		this.peakLPS = 0;
+		this.lowLPS = 0;
 
 		this.linesInLastNSeconds = new HashMap<LinesInLastNMilliseconds, IntervalAccumulator>( );
 
@@ -97,6 +100,11 @@ public class LineStatistics
 		}
 	}
 
+	public double getLowLPS( )
+	{
+		return lowLPS;
+	}
+
 	public double getLPS( )
 	{
 		return this.computeLPS( this.getAccumulatedLines( ), this.getElapsedTime( ) );
@@ -126,6 +134,16 @@ public class LineStatistics
 		this.elapsedTime = timeRange.getEnd( ) - startTimeStamp;
 		double currentLPS = this.computeLPS( accumulatedLines, elapsedTime );
 		this.peakLPS = Math.max( peakLPS, currentLPS );
+
+		if ( this.lowLPS <= EPS )
+		{
+			this.lowLPS = currentLPS;
+		}
+		if ( currentLPS > 0 )
+		{
+			this.lowLPS = Math.min( lowLPS, currentLPS );
+		}
+
 		for ( Map.Entry<LinesInLastNMilliseconds, IntervalAccumulator> e : this.linesInLastNSeconds.entrySet( ) )
 		{
 			e.getValue( ).addLines( lines, timeRange );
