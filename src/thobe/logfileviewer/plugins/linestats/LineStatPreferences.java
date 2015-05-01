@@ -31,18 +31,31 @@ public class LineStatPreferences implements IPluginPreferences
 	private static final String	NODE_FILTERS			= "filters";
 	private static final String	PRP_FILTER_FILE_PATH	= "filterFilePath";
 	private static final String	PRP_FILTER				= "filter";
+	private static final String	PRP_TRACING_ENABLED		= "tracingEnabled";
 	private static final String	PRP_CLOCK_FILTER		= "clock-filter";
 
 	private File				fileFilterPath;
 	private List<String>		filters;
 	private Logger				log;
 	private Pattern				clockFilter;
+	private boolean				tracingEnabled;
 
 	public LineStatPreferences( Logger log )
 	{
 		this.log = log;
 		this.fileFilterPath = new File( "" );
 		this.filters = new ArrayList<String>( );
+		this.tracingEnabled = false;
+	}
+
+	public void setTracingEnabled( boolean tracingEnabled )
+	{
+		this.tracingEnabled = tracingEnabled;
+	}
+
+	public boolean isTracingEnabled( )
+	{
+		return this.tracingEnabled;
 	}
 
 	public void setClockFilter( Pattern clockFilter )
@@ -80,6 +93,8 @@ public class LineStatPreferences implements IPluginPreferences
 	{
 		String fileFilterPathStr = pluginPrefRoot.get( PRP_FILTER_FILE_PATH, "" );
 		this.fileFilterPath = new File( fileFilterPathStr );
+
+		this.tracingEnabled = pluginPrefRoot.getBoolean( PRP_TRACING_ENABLED, false );
 
 		String clockFilterStr = pluginPrefRoot.get( PRP_CLOCK_FILTER, "" );
 		this.clockFilter = null;
@@ -120,6 +135,9 @@ public class LineStatPreferences implements IPluginPreferences
 	public void save( Preferences pluginPrefRoot )
 	{
 		pluginPrefRoot.put( PRP_FILTER_FILE_PATH, this.fileFilterPath.getAbsolutePath( ) );
+
+		pluginPrefRoot.putBoolean( PRP_TRACING_ENABLED, this.tracingEnabled );
+
 		String clockFilterStr = "";
 		if ( this.clockFilter != null )
 		{

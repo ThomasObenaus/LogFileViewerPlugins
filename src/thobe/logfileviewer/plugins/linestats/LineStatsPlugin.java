@@ -214,6 +214,7 @@ public class LineStatsPlugin extends Plugin
 		synchronized ( this )
 		{
 			this.tracingEnabled = tracingEnabled;
+			this.lineStatPrefs.setTracingEnabled( this.tracingEnabled );
 		}
 		this.eventSemaphore.release( );
 	}
@@ -459,6 +460,11 @@ public class LineStatsPlugin extends Plugin
 	@Override
 	public boolean onRegistered( IPluginAccess pluginAccess )
 	{
+		synchronized ( this )
+		{
+			this.tracingEnabled = this.lineStatPrefs.isTracingEnabled( );
+		}
+
 		// add persisted filters
 		List<String> persistedFilters = this.lineStatPrefs.getFilters( );
 		List<Pattern> filters = new ArrayList<Pattern>( );
