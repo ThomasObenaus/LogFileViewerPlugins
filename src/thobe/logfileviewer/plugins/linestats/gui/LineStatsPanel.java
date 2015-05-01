@@ -345,6 +345,7 @@ public class LineStatsPanel extends JPanel implements IPluginUIComponent, ILineS
 
 	private void startStatTracing( )
 	{
+		this.lineStats.setTracingEnabled( true );
 		this.lineStats.startStatTracing( );
 	}
 
@@ -377,6 +378,7 @@ public class LineStatsPanel extends JPanel implements IPluginUIComponent, ILineS
 
 	private void stopStatTracing( )
 	{
+		this.lineStats.setTracingEnabled( false );
 		this.lineStats.stopTracing( );
 	}
 

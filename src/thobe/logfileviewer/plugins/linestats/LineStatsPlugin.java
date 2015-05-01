@@ -47,6 +47,7 @@ public class LineStatsPlugin extends Plugin
 	private List<ILogLine>					llBuffer;
 	private Semaphore						eventSemaphore;
 	private boolean							tracingRunning;
+	private boolean							tracingEnabled;
 
 	private List<ILineStatsPluginListener>	listeners;
 
@@ -69,6 +70,7 @@ public class LineStatsPlugin extends Plugin
 		this.addClockListener( this.pa_lineStats );
 
 		this.tracingRunning = false;
+		this.tracingEnabled = false;
 		this.countsForCurrentRun = new HashMap<String, LineStatistics>( );
 		this.patLineCounter = new HashMap<Pattern, Long>( );
 
@@ -85,11 +87,6 @@ public class LineStatsPlugin extends Plugin
 	public void addListener( ILineStatsPluginListener l )
 	{
 		this.listeners.add( l );
-	}
-
-	public boolean isTracingRunning( )
-	{
-		return this.tracingRunning;
 	}
 
 	@Override
@@ -212,21 +209,40 @@ public class LineStatsPlugin extends Plugin
 		return result;
 	}
 
+	public void setTracingEnabled( boolean tracingEnabled )
+	{
+		synchronized ( this )
+		{
+			this.tracingEnabled = tracingEnabled;
+		}
+		this.eventSemaphore.release( );
+	}
+
 	public void startStatTracing( )
 	{
-		synchronized ( countsForCurrentRun )
+		boolean tEnabled = false;
+
+		synchronized ( this )
 		{
-			Pattern clockFilter = this.pa_lineStats.getClockFilter( );
-			this.lineStatPrefs.setClockFilter( clockFilter );
-			this.clock.reset( clockFilter );
-			this.tracingRunning = true;
+			tEnabled = this.tracingEnabled;
+		}
 
-			this.resetInternalCounters( );
+		if ( tEnabled )
+		{
+			synchronized ( countsForCurrentRun )
+			{
+				Pattern clockFilter = this.pa_lineStats.getClockFilter( );
+				this.lineStatPrefs.setClockFilter( clockFilter );
+				this.clock.reset( clockFilter );
+				this.tracingRunning = true;
 
-			LOG( ).info( this.getPluginName( ) + " Tracing started" );
-		}// synchronized ( countsForCurrentRun )
+				this.resetInternalCounters( );
 
-		this.fireTracingStarted( );
+				LOG( ).info( this.getPluginName( ) + " Tracing started" );
+			}// synchronized ( countsForCurrentRun )
+
+			this.fireTracingStarted( );
+		}
 		this.eventSemaphore.release( );
 	}
 
