@@ -27,7 +27,7 @@ import thobe.logfileviewer.plugins.linestats.LinesInLastNMilliseconds;
 public class LS_TableModel extends AbstractTableModel
 {
 	private static final String[]	columnNames	= new String[]
-												{ "Filter", "LPS", "LPS 10s", "# 10s", "LPS 30s", "# 30s", "LPS 60s", "# 60s", "#lines" };
+												{ "Filter", "LPS", "Max LPS", "LPS 10s", "# 10s", "LPS 30s", "# 30s", "LPS 60s", "# 60s", "#lines" };
 
 	private List<LineStatistics>	data;
 
@@ -172,16 +172,18 @@ public class LS_TableModel extends AbstractTableModel
 		if ( columnIndex == 2 )
 			return Double.class;
 		if ( columnIndex == 3 )
-			return Long.class;
+			return Double.class;
 		if ( columnIndex == 4 )
-			return Double.class;
+			return Long.class;
 		if ( columnIndex == 5 )
-			return Long.class;
-		if ( columnIndex == 6 )
 			return Double.class;
-		if ( columnIndex == 7 )
+		if ( columnIndex == 6 )
 			return Long.class;
+		if ( columnIndex == 7 )
+			return Double.class;
 		if ( columnIndex == 8 )
+			return Long.class;
+		if ( columnIndex == 9 )
 			return Long.class;
 		return super.getColumnClass( columnIndex );
 	}
@@ -224,29 +226,33 @@ public class LS_TableModel extends AbstractTableModel
 		}
 		else if ( columnIndex == 2 )
 		{
-			return ls.getLPSInLast( LinesInLastNMilliseconds.LINES_IN_LAST_10_SECONDS );
+			return ls.getPeakLPS( );
 		}
 		else if ( columnIndex == 3 )
 		{
-			return ls.getLinesInLast( LinesInLastNMilliseconds.LINES_IN_LAST_10_SECONDS );
+			return ls.getLPSInLast( LinesInLastNMilliseconds.LINES_IN_LAST_10_SECONDS );
 		}
 		else if ( columnIndex == 4 )
 		{
-			return ls.getLPSInLast( LinesInLastNMilliseconds.LINES_IN_LAST_10_SECONDS );
+			return ls.getLinesInLast( LinesInLastNMilliseconds.LINES_IN_LAST_10_SECONDS );
 		}
 		else if ( columnIndex == 5 )
 		{
-			return ls.getLinesInLast( LinesInLastNMilliseconds.LINES_IN_LAST_30_SECONDS );
+			return ls.getLPSInLast( LinesInLastNMilliseconds.LINES_IN_LAST_10_SECONDS );
 		}
 		else if ( columnIndex == 6 )
 		{
-			return ls.getLPSInLast( LinesInLastNMilliseconds.LINES_IN_LAST_60_SECONDS );
+			return ls.getLinesInLast( LinesInLastNMilliseconds.LINES_IN_LAST_30_SECONDS );
 		}
 		else if ( columnIndex == 7 )
 		{
-			return ls.getLinesInLast( LinesInLastNMilliseconds.LINES_IN_LAST_60_SECONDS );
+			return ls.getLPSInLast( LinesInLastNMilliseconds.LINES_IN_LAST_60_SECONDS );
 		}
 		else if ( columnIndex == 8 )
+		{
+			return ls.getLinesInLast( LinesInLastNMilliseconds.LINES_IN_LAST_60_SECONDS );
+		}
+		else if ( columnIndex == 9 )
 		{
 			return ls.getAccumulatedLines( );
 		}

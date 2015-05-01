@@ -26,6 +26,7 @@ public class LineStatistics
 	private long												startTimeStamp;
 	private long												elapsedTime;
 	private Pattern												filter;
+	private double												peakLPS;
 
 	public LineStatistics( Pattern filter )
 	{
@@ -33,12 +34,19 @@ public class LineStatistics
 		this.accumulatedLines = 0;
 		this.startTimeStamp = 0;
 		this.elapsedTime = 0;
+		this.peakLPS = 0;
+
 		this.linesInLastNSeconds = new HashMap<LinesInLastNMilliseconds, IntervalAccumulator>( );
 
 		this.linesInLastNSeconds.put( LinesInLastNMilliseconds.LINES_IN_LAST_SECOND, new IntervalAccumulator( LinesInLastNMilliseconds.LINES_IN_LAST_SECOND ) );
 		this.linesInLastNSeconds.put( LinesInLastNMilliseconds.LINES_IN_LAST_10_SECONDS, new IntervalAccumulator( LinesInLastNMilliseconds.LINES_IN_LAST_10_SECONDS ) );
 		this.linesInLastNSeconds.put( LinesInLastNMilliseconds.LINES_IN_LAST_30_SECONDS, new IntervalAccumulator( LinesInLastNMilliseconds.LINES_IN_LAST_30_SECONDS ) );
 		this.linesInLastNSeconds.put( LinesInLastNMilliseconds.LINES_IN_LAST_60_SECONDS, new IntervalAccumulator( LinesInLastNMilliseconds.LINES_IN_LAST_60_SECONDS ) );
+	}
+
+	public double getPeakLPS( )
+	{
+		return peakLPS;
 	}
 
 	public String getFilterName( )
@@ -82,6 +90,7 @@ public class LineStatistics
 		this.startTimeStamp = 0;
 		this.accumulatedLines = 0;
 		this.elapsedTime = 0;
+		this.peakLPS = 0;
 		for ( Map.Entry<LinesInLastNMilliseconds, IntervalAccumulator> e : this.linesInLastNSeconds.entrySet( ) )
 		{
 			e.getValue( ).resetCompleteData( );
@@ -90,11 +99,15 @@ public class LineStatistics
 
 	public double getLPS( )
 	{
-		long accLines = this.getAccumulatedLines( );
-		double elapsedTime = this.getElapsedTime( ) / 1000.0;
-		if ( elapsedTime == 0d )
-			elapsedTime = 1d;
-		return accLines / elapsedTime;
+		return this.computeLPS( this.getAccumulatedLines( ), this.getElapsedTime( ) );
+	}
+
+	private double computeLPS( long lines, long elapsedTimeInMS )
+	{
+		double elapsedTimeDbl = elapsedTimeInMS / 1000.0;
+		if ( elapsedTimeDbl == 0d )
+			elapsedTimeDbl = 1d;
+		return ( lines / elapsedTimeDbl );
 	}
 
 	public long getElapsedTime( )
@@ -111,7 +124,8 @@ public class LineStatistics
 
 		this.accumulatedLines += lines;
 		this.elapsedTime = timeRange.getEnd( ) - startTimeStamp;
-
+		double currentLPS = this.computeLPS( accumulatedLines, elapsedTime );
+		this.peakLPS = Math.max( peakLPS, currentLPS );
 		for ( Map.Entry<LinesInLastNMilliseconds, IntervalAccumulator> e : this.linesInLastNSeconds.entrySet( ) )
 		{
 			e.getValue( ).addLines( lines, timeRange );
@@ -150,7 +164,7 @@ public class LineStatistics
 	@Override
 	public String toString( )
 	{
-		return this.getFilter( ).toString( );
+		return this.getFilterName( );
 	}
 
 	@Override
