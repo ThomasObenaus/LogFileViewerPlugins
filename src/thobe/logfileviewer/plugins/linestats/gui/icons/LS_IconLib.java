@@ -37,6 +37,8 @@ public class LS_IconLib extends IconLib
 		icons.put( LS_IconType.ADD_FROM_FILE, new IconContainer( LOG( ), LS_IconLib.class.getResource( "/thobe/logfileviewer/plugins/linestats/gui/icons/" ), "add_from_file", "png" ) );
 		icons.put( LS_IconType.REMOVE_SELECTED_FILTERS, new IconContainer( LOG( ), LS_IconLib.class.getResource( "/thobe/logfileviewer/plugins/linestats/gui/icons/" ), "remove_selected_filters", "png" ) );
 		icons.put( LS_IconType.CLOCK, new IconContainer( LOG( ), LS_IconLib.class.getResource( "/thobe/logfileviewer/plugins/linestats/gui/icons/" ), "clock", "png" ) );
+		icons.put( LS_IconType.START_TRACING, new IconContainer( LOG( ), LS_IconLib.class.getResource( "/thobe/logfileviewer/plugins/linestats/gui/icons/" ), "start_tracing", "png" ) );
+		icons.put( LS_IconType.STOP_TRACING, new IconContainer( LOG( ), LS_IconLib.class.getResource( "/thobe/logfileviewer/plugins/linestats/gui/icons/" ), "stop_tracing", "png" ) );
 		return icons;
 	}
 

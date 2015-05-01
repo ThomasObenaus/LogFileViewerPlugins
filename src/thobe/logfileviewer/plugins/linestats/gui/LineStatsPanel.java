@@ -31,6 +31,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
+import javax.swing.JToggleButton;
 
 import thobe.logfileviewer.plugin.api.IPluginUIComponent;
 import thobe.logfileviewer.plugins.linestats.IClockListener;
@@ -69,8 +70,7 @@ public class LineStatsPanel extends JPanel implements IPluginUIComponent, ILineS
 
 	private TableViewPanel					pa_tableView;
 
-	private JButton							bu_start;
-	private JButton							bu_stop;
+	private JToggleButton					bu_startStop;
 
 	private UpdateTask						updateTask;
 
@@ -188,7 +188,7 @@ public class LineStatsPanel extends JPanel implements IPluginUIComponent, ILineS
 		this.addListener( pa_tableView );
 
 		// buttons
-		FormLayout fla_buttons = new FormLayout( "3dlu,17dlu,3dlu,fill:default,3dlu,80dlu,3dlu,fill:default:grow,3dlu,default,3dlu,default,3dlu", "3dlu,30dlu,3dlu" );
+		FormLayout fla_buttons = new FormLayout( "3dlu,17dlu,3dlu,fill:default,3dlu,80dlu,3dlu,fill:default:grow,3dlu,default,3dlu", "3dlu,30dlu,3dlu" );
 		CellConstraints cc_buttons = new CellConstraints( );
 		final JPanel pa_buttons = new JPanel( fla_buttons );
 		this.add( pa_buttons, BorderLayout.SOUTH );
@@ -229,28 +229,24 @@ public class LineStatsPanel extends JPanel implements IPluginUIComponent, ILineS
 		this.l_clockErrCount = new JLabel( );
 		pa_buttons.add( this.l_clockErrCount, cc_buttons.xy( 8, 2 ) );
 
-		this.bu_start = new JButton( "start" );
-		pa_buttons.add( this.bu_start, cc_buttons.xy( 10, 2 ) );
-		this.bu_start.addActionListener( new ActionListener( )
+		this.bu_startStop = new JToggleButton( LS_IconLib.get( ).getIcon( LS_IconType.START_TRACING, true, IconSize.S16x16 ) );
+		pa_buttons.add( this.bu_startStop, cc_buttons.xy( 10, 2 ) );
+		bu_startStop.setToolTipText( "Start tracing" );
+		this.bu_startStop.addActionListener( new ActionListener( )
 		{
 			@Override
 			public void actionPerformed( ActionEvent e )
 			{
-				startStatTracing( );
+				if ( bu_startStop.isSelected( ) )
+				{
+					startStatTracing( );
+				}
+				else
+				{
+					stopStatTracing( );
+				}
 			}
 		} );
-		this.bu_stop = new JButton( "stop" );
-		pa_buttons.add( this.bu_stop, cc_buttons.xy( 12, 2 ) );
-		this.bu_stop.addActionListener( new ActionListener( )
-		{
-			@Override
-			public void actionPerformed( ActionEvent e )
-			{
-				stopStatTracing( );
-			}
-		} );
-		bu_stop.setEnabled( false );
-
 	}
 
 	public void setClockFilter( Pattern clockFilter )
@@ -345,6 +341,8 @@ public class LineStatsPanel extends JPanel implements IPluginUIComponent, ILineS
 
 	private void startStatTracing( )
 	{
+		bu_startStop.setIcon( LS_IconLib.get( ).getIcon( LS_IconType.STOP_TRACING, true, IconSize.S16x16 ) );
+		bu_startStop.setToolTipText( "Stop tracing" );
 		this.lineStats.setTracingEnabled( true );
 		this.lineStats.startStatTracing( );
 	}
@@ -378,6 +376,8 @@ public class LineStatsPanel extends JPanel implements IPluginUIComponent, ILineS
 
 	private void stopStatTracing( )
 	{
+		bu_startStop.setIcon( LS_IconLib.get( ).getIcon( LS_IconType.START_TRACING, true, IconSize.S16x16 ) );
+		bu_startStop.setToolTipText( "Start tracing" );
 		this.lineStats.setTracingEnabled( false );
 		this.lineStats.stopTracing( );
 	}
@@ -544,23 +544,22 @@ public class LineStatsPanel extends JPanel implements IPluginUIComponent, ILineS
 	@Override
 	public void onStartTracing( )
 	{
+		bu_startStop.setIcon( LS_IconLib.get( ).getIcon( LS_IconType.STOP_TRACING, true, IconSize.S16x16 ) );
+		bu_startStop.setToolTipText( "Stop tracing" );
+		bu_startStop.setSelected( true );
+
 		this.l_clock.setText( CLOCK_PREFIX + "0s" );
 		this.clockErrors.clear( );
 		this.l_clockErrCount.setText( "" );
 		this.updateTask.setFireEnabled( true );
 		this.updateTask.updateNow( );
 
-		bu_start.setEnabled( false );
-		bu_stop.setEnabled( true );
 	}
 
 	@Override
 	public void onStopTracing( )
 	{
 		this.updateTask.setFireEnabled( false );
-
-		bu_start.setEnabled( true );
-		bu_stop.setEnabled( false );
 	}
 
 	@Override

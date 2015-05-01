@@ -19,5 +19,5 @@ import thobe.widgets.icons.IIconType;
  */
 public enum LS_IconType implements IIconType
 {
-	ADD, ADD_FROM_FILE,REMOVE_SELECTED_FILTERS,CLOCK;
+	ADD, ADD_FROM_FILE,REMOVE_SELECTED_FILTERS,CLOCK,START_TRACING,STOP_TRACING;
 }
