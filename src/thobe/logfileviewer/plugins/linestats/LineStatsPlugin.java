@@ -446,9 +446,20 @@ public class LineStatsPlugin extends Plugin
 		// add persisted filters
 		List<String> persistedFilters = this.lineStatPrefs.getFilters( );
 		List<Pattern> filters = new ArrayList<Pattern>( );
-		filters.add( ALL_FILTER );
+
+		boolean allFilterAdded = false;
 		for ( String filterStr : persistedFilters )
 		{
+			if ( ( filterStr == null ) || ( filterStr.trim( ).isEmpty( ) ) )
+			{
+				continue;
+			}
+
+			if ( filterStr.equals( ALL_FILTER.toString( ) ) )
+			{
+				allFilterAdded = true;
+			}
+
 			try
 			{
 				Pattern filter = Pattern.compile( filterStr );
@@ -460,6 +471,10 @@ public class LineStatsPlugin extends Plugin
 			}
 		}// for ( String filterStr : persistedFilters )
 
+		if ( !allFilterAdded )
+		{
+			filters.add( ALL_FILTER );
+		}
 		this.pa_lineStats.addFilters( filters );
 		this.pa_lineStats.setClockFilter( this.lineStatPrefs.getClockFilter( ) );
 		return true;

@@ -258,9 +258,28 @@ public class LineStatsPanel extends JPanel implements IPluginUIComponent, ILineS
 		if ( clockFilter != null )
 		{
 			this.rtf_clockFilter.removeListener( this.rtf_listener );
-			this.rtf_clockFilter.setValue( clockFilter.toString( ) );
+
+			String clockFilterString = ".*";
+			clockFilterString = clockFilter.toString( );
+
+			if ( clockFilterString.startsWith( ".*" ) )
+			{
+				clockFilterString = clockFilterString.substring( 2, clockFilterString.length( ) );
+			}
+
+			if ( clockFilterString.endsWith( ".*" ) )
+			{
+				clockFilterString = clockFilterString.substring( 0, clockFilterString.length( ) - 2 );
+			}
+
+			if ( clockFilterString.trim( ).isEmpty( ) )
+			{
+				clockFilterString = ".*";
+			}
+
+			this.rtf_clockFilter.setValue( clockFilterString );
 			this.rtf_clockFilter.addListener( this.rtf_listener );
-		}
+		}// if ( clockFilter != null )
 	}
 
 	private void addFiltersFromFile( )

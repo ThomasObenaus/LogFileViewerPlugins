@@ -102,7 +102,11 @@ public class LineStatPreferences implements IPluginPreferences
 			String childNames[] = filtersNode.keys( );
 			for ( String childName : childNames )
 			{
-				this.filters.add( filtersNode.get( childName, "" ) );
+				String filterStr = filtersNode.get( childName, "" );
+				if ( !this.filters.contains( filterStr ) )
+				{
+					this.filters.add( filterStr );
+				}
 			}
 		}
 		catch ( BackingStoreException e )
