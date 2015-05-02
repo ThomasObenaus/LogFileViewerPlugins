@@ -592,4 +592,34 @@ public class LineStatsPlugin extends Plugin
 		}
 	}
 
+	@Override
+	public String getPluginAuthor( )
+	{
+		return "Thomas Obenaus";
+	}
+
+	@Override
+	public String getPluginAuthorEMailAddress( )
+	{
+		return "obenaus.thomas@gmail.com";
+	}
+
+	@Override
+	public String getPluginWebsite( )
+	{
+		return "https://github.com/ThomasObenaus/LogFileViewerPlugins/wiki/LineStats";
+	}
+
+	@Override
+	public String getPluginLicense( )
+	{
+		return "Copyright (C) 2015, Thomas Obenaus. All rights reserved. Licensed under the New BSD License (3-clause lic) See attached license-file.";
+	}
+
+	@Override
+	public String getPluginDescription( )
+	{
+		return "This plugin simply counts the lines per second for any given log-line. For counting log-lines you can specify a regular expression to match the parts you are interested in.";
+	}
+
 }
