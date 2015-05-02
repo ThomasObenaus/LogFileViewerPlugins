@@ -40,8 +40,8 @@ public class LineStatsPlugin extends Plugin
 {
 	private static final String				EXPORT_STATS_SEPARATOR	= "\t";
 	private static final String				L_NAME					= "thobe.logfileviewer.plugins.linestats";
-	private static final int				MAJOR_VERSION			= 0;
-	private static final int				MINOR_VERSION			= 3;
+	private static final int				MAJOR_VERSION			= 1;
+	private static final int				MINOR_VERSION			= 0;
 	private static final int				BUGFIX_VERSION			= 0;
 
 	private static final Pattern			ALL_FILTER				= Pattern.compile( ".*" );
