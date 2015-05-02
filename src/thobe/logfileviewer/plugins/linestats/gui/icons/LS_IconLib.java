@@ -40,6 +40,7 @@ public class LS_IconLib extends IconLib
 		icons.put( LS_IconType.START_TRACING, new IconContainer( LOG( ), LS_IconLib.class.getResource( "/thobe/logfileviewer/plugins/linestats/gui/icons/" ), "start_tracing", "png" ) );
 		icons.put( LS_IconType.STOP_TRACING, new IconContainer( LOG( ), LS_IconLib.class.getResource( "/thobe/logfileviewer/plugins/linestats/gui/icons/" ), "stop_tracing", "png" ) );
 		icons.put( LS_IconType.EXPORT_FILTERS_TO_FILE, new IconContainer( LOG( ), LS_IconLib.class.getResource( "/thobe/logfileviewer/plugins/linestats/gui/icons/" ), "export_filters", "png" ) );
+		icons.put( LS_IconType.EXPORT_STATS, new IconContainer( LOG( ), LS_IconLib.class.getResource( "/thobe/logfileviewer/plugins/linestats/gui/icons/" ), "export_stats", "png" ) );
 		return icons;
 	}
 

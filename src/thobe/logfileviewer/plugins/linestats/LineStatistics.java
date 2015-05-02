@@ -50,6 +50,24 @@ public class LineStatistics
 		this.linesInLastNSeconds.put( LinesInLastNMilliseconds.LINES_IN_LAST_60_SECONDS, new IntervalAccumulator( LinesInLastNMilliseconds.LINES_IN_LAST_60_SECONDS ) );
 	}
 
+	@Override
+	public Object clone( )
+	{
+		LineStatistics result = new LineStatistics( this.log, this.filter );
+		result.accumulatedLines = this.accumulatedLines;
+		result.elapsedTime = this.elapsedTime;
+		result.lowLPS = this.lowLPS;
+		result.peakLPS = this.peakLPS;
+		result.startTimeStamp = this.startTimeStamp;
+		result.linesInLastNSeconds = new HashMap<LinesInLastNMilliseconds, LineStatistics.IntervalAccumulator>( );
+		for ( Map.Entry<LinesInLastNMilliseconds, LineStatistics.IntervalAccumulator> entry : this.linesInLastNSeconds.entrySet( ) )
+		{
+			result.linesInLastNSeconds.put( entry.getKey( ), ( IntervalAccumulator ) entry.getValue( ).clone( ) );
+		}// for ( Map.Entry<LinesInLastNMilliseconds, LineStatistics.IntervalAccumulator> entry : this.linesInLastNSeconds.entrySet( ) )
+
+		return result;
+	}
+
 	public double getPeakLPS( )
 	{
 		return peakLPS;
@@ -297,5 +315,15 @@ public class LineStatistics
 			return LPSInLastInterval;
 		}
 
+		@Override
+		public Object clone( )
+		{
+			IntervalAccumulator result = new IntervalAccumulator( this.intervalInMs );
+			result.accumulatedLines = this.accumulatedLines;
+			result.linesInLastInterVal = this.linesInLastInterVal;
+			result.LPSInLastInterval = this.LPSInLastInterval;
+			result.startTimeStamp = this.startTimeStamp;
+			return result;
+		}
 	}
 }

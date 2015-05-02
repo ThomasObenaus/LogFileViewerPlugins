@@ -32,6 +32,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JToggleButton;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import thobe.logfileviewer.plugin.api.IPluginUIComponent;
 import thobe.logfileviewer.plugins.linestats.IClockListener;
@@ -56,8 +57,9 @@ import com.jgoodies.forms.layout.FormLayout;
 @SuppressWarnings ( "serial")
 public class LineStatsPanel extends JPanel implements IPluginUIComponent, ILineStatsPluginListener, IClockListener
 {
-	private static final Pattern			ALL_FILTER		= Pattern.compile( ".*" );
-	private final static String				CLOCK_PREFIX	= "Elapsed: ";
+	private static final String				STATS_FILE_EXTENSION	= "csv";
+	private static final Pattern			ALL_FILTER				= Pattern.compile( ".*" );
+	private final static String				CLOCK_PREFIX			= "Elapsed: ";
 	private LineStatsPlugin					lineStats;
 
 	private RestrictedTextFieldRegexp		rtf_filter;
@@ -69,6 +71,7 @@ public class LineStatsPanel extends JPanel implements IPluginUIComponent, ILineS
 	private JButton							bu_addFiltersFromFile;
 	private JButton							bu_clockFilter;
 	private JButton							bu_exportFilters;
+	private JButton							bu_exportStats;
 
 	private TableViewPanel					pa_tableView;
 
@@ -201,7 +204,7 @@ public class LineStatsPanel extends JPanel implements IPluginUIComponent, ILineS
 		this.addListener( pa_tableView );
 
 		// buttons
-		FormLayout fla_buttons = new FormLayout( "3dlu,default,3dlu,fill:default,3dlu,80dlu,3dlu,fill:default:grow,3dlu,default,3dlu", "3dlu,30dlu,3dlu" );
+		FormLayout fla_buttons = new FormLayout( "3dlu,default,3dlu,fill:default,3dlu,80dlu,3dlu,fill:default:grow,3dlu,default,3dlu,default,3dlu", "3dlu,30dlu,3dlu" );
 		CellConstraints cc_buttons = new CellConstraints( );
 		final JPanel pa_buttons = new JPanel( fla_buttons );
 		this.add( pa_buttons, BorderLayout.SOUTH );
@@ -256,6 +259,37 @@ public class LineStatsPanel extends JPanel implements IPluginUIComponent, ILineS
 				}
 			}
 		} );
+
+		this.bu_exportStats = new JButton( LS_IconLib.get( ).getIcon( LS_IconType.EXPORT_STATS, true, IconSize.S16x16 ) );
+		pa_buttons.add( this.bu_exportStats, cc_buttons.xy( 12, 2 ) );
+		bu_exportStats.setToolTipText( "Export statistics to file" );
+		this.bu_exportStats.addActionListener( new ActionListener( )
+		{
+			@Override
+			public void actionPerformed( ActionEvent e )
+			{
+				exportStatisticsToFile( );
+			}
+		} );
+	}
+
+	private void exportStatisticsToFile( )
+	{
+		JFileChooser fc = new JFileChooser( this.lineStats.getPrefs( ).getExportStatsFilePath( ) );
+		fc.setFileSelectionMode( JFileChooser.FILES_ONLY );
+		fc.setFileFilter( new FileNameExtensionFilter( "CSV-Files", STATS_FILE_EXTENSION ) );
+		fc.setDialogTitle( "Export statistics to file" );
+		if ( fc.showSaveDialog( this ) == JFileChooser.APPROVE_OPTION )
+		{
+			File f = fc.getSelectedFile( );
+			if ( !f.getName( ).endsWith( "." + STATS_FILE_EXTENSION ) )
+			{
+				f = new File( f.getAbsolutePath( ) + "." + STATS_FILE_EXTENSION );
+			}
+
+			this.lineStats.exportStatistics( f );
+			this.lineStats.getPrefs( ).setExportStatsFilePath( f.getParentFile( ) );
+		}// f ( fc.showSaveDialog( this ) == JFileChooser.APPROVE_OPTION )
 	}
 
 	private void exportFiltersToFile( )
@@ -266,7 +300,7 @@ public class LineStatsPanel extends JPanel implements IPluginUIComponent, ILineS
 		if ( fc.showSaveDialog( this ) == JFileChooser.APPROVE_OPTION )
 		{
 			this.lineStats.exportFiltersToFile( fc.getSelectedFile( ) );
-			this.lineStats.getPrefs( ).setFileFilterPath( fc.getSelectedFile( ) );
+			this.lineStats.getPrefs( ).setFileFilterPath( fc.getSelectedFile( ).getParentFile( ) );
 		}
 	}
 

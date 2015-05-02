@@ -38,12 +38,13 @@ import thobe.logfileviewer.plugins.linestats.gui.LineStatsPanel;
  */
 public class LineStatsPlugin extends Plugin
 {
-	private static final String				L_NAME			= "thobe.logfileviewer.plugins.linestats";
-	private static final int				MAJOR_VERSION	= 0;
-	private static final int				MINOR_VERSION	= 3;
-	private static final int				BUGFIX_VERSION	= 0;
+	private static final String				EXPORT_STATS_SEPARATOR	= "\t";
+	private static final String				L_NAME					= "thobe.logfileviewer.plugins.linestats";
+	private static final int				MAJOR_VERSION			= 0;
+	private static final int				MINOR_VERSION			= 3;
+	private static final int				BUGFIX_VERSION			= 0;
 
-	private static final Pattern			ALL_FILTER		= Pattern.compile( ".*" );
+	private static final Pattern			ALL_FILTER				= Pattern.compile( ".*" );
 
 	private Map<String, LineStatistics>		countsForCurrentRun;
 	private Map<Pattern, Long>				patLineCounter;
@@ -91,6 +92,50 @@ public class LineStatsPlugin extends Plugin
 	public void addListener( ILineStatsPluginListener l )
 	{
 		this.listeners.add( l );
+	}
+
+	public void exportStatistics( File file )
+	{
+		if ( ( file == null ) || file.isDirectory( ) || ( !file.getParentFile( ).canWrite( ) ) )
+		{
+			LOG( ).severe( "Can't export statistics since file '" + file + "' is not valid." );
+		}// if ( ( file == null ) || file.isDirectory( ) || ( !file.getParentFile( ).canWrite( ) ) )
+		else
+		{
+			Map<String, LineStatistics> tmpStats = new HashMap<String, LineStatistics>( );
+			synchronized ( this.countsForCurrentRun )
+			{
+				for ( Map.Entry<String, LineStatistics> entry : this.countsForCurrentRun.entrySet( ) )
+				{
+					tmpStats.put( new String( entry.getKey( ) ), ( LineStatistics ) entry.getValue( ).clone( ) );
+				}
+			}// synchronized ( this.countsForCurrentRun )
+
+			try
+			{
+				BufferedWriter br = new BufferedWriter( new FileWriter( file ) );
+				br.write( "Filter" + EXPORT_STATS_SEPARATOR + "LPS" + EXPORT_STATS_SEPARATOR + "Max LPS" + EXPORT_STATS_SEPARATOR + "Min LPS >0" + EXPORT_STATS_SEPARATOR );
+				br.write( "LPS 10s" + EXPORT_STATS_SEPARATOR + "# 10s" + EXPORT_STATS_SEPARATOR );
+				br.write( "LPS 30s" + EXPORT_STATS_SEPARATOR + "# 30s" + EXPORT_STATS_SEPARATOR );
+				br.write( "LPS 60s" + EXPORT_STATS_SEPARATOR + "# 60s" + EXPORT_STATS_SEPARATOR );
+				br.write( "#lines" + "\n" );
+				for ( Map.Entry<String, LineStatistics> entry : tmpStats.entrySet( ) )
+				{
+					LineStatistics ls = entry.getValue( );
+					br.write( entry.getKey( ) + EXPORT_STATS_SEPARATOR + ls.getLPS( ) + EXPORT_STATS_SEPARATOR + ls.getPeakLPS( ) + EXPORT_STATS_SEPARATOR + ls.getLowLPS( ) + EXPORT_STATS_SEPARATOR );
+					br.write( ls.getLPSInLast( LinesInLastNMilliseconds.LINES_IN_LAST_10_SECONDS ) + EXPORT_STATS_SEPARATOR + ls.getLinesInLast( LinesInLastNMilliseconds.LINES_IN_LAST_10_SECONDS ) + EXPORT_STATS_SEPARATOR );
+					br.write( ls.getLPSInLast( LinesInLastNMilliseconds.LINES_IN_LAST_30_SECONDS ) + EXPORT_STATS_SEPARATOR + ls.getLinesInLast( LinesInLastNMilliseconds.LINES_IN_LAST_30_SECONDS ) + EXPORT_STATS_SEPARATOR );
+					br.write( ls.getLPSInLast( LinesInLastNMilliseconds.LINES_IN_LAST_60_SECONDS ) + EXPORT_STATS_SEPARATOR + ls.getLinesInLast( LinesInLastNMilliseconds.LINES_IN_LAST_60_SECONDS ) + EXPORT_STATS_SEPARATOR );
+					br.write( ls.getAccumulatedLines( ) + "\n" );
+				}// for ( Map.Entry<String, LineStatistics> entry : this.countsForCurrentRun.entrySet( ) )
+
+				br.close( );
+			}
+			catch ( IOException e )
+			{
+				LOG( ).severe( "Can't export filters: " + e.getLocalizedMessage( ) );
+			}
+		} //if ( ( file == null ) || file.isDirectory( ) || ( !file.getParentFile( ).canWrite( ) ) )
 	}
 
 	public void exportFiltersToFile( File file )

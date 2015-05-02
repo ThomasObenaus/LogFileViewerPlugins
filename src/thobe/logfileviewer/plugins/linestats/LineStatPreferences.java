@@ -28,13 +28,15 @@ import thobe.logfileviewer.plugin.api.IPluginPreferences;
  */
 public class LineStatPreferences implements IPluginPreferences
 {
-	private static final String	NODE_FILTERS			= "filters";
-	private static final String	PRP_FILTER_FILE_PATH	= "filterFilePath";
-	private static final String	PRP_FILTER				= "filter";
-	private static final String	PRP_TRACING_ENABLED		= "tracingEnabled";
-	private static final String	PRP_CLOCK_FILTER		= "clock-filter";
+	private static final String	NODE_FILTERS				= "filters";
+	private static final String	PRP_FILTER_FILE_PATH		= "filterFilePath";
+	private static final String	PRP_EXPORT_STATS_FILE_PATH	= "exportStatsFilePath";
+	private static final String	PRP_FILTER					= "filter";
+	private static final String	PRP_TRACING_ENABLED			= "tracingEnabled";
+	private static final String	PRP_CLOCK_FILTER			= "clock-filter";
 
 	private File				fileFilterPath;
+	private File				exportStatsFilePath;
 	private List<String>		filters;
 	private Logger				log;
 	private Pattern				clockFilter;
@@ -44,6 +46,7 @@ public class LineStatPreferences implements IPluginPreferences
 	{
 		this.log = log;
 		this.fileFilterPath = new File( "" );
+		this.exportStatsFilePath = new File( "" );
 		this.filters = new ArrayList<String>( );
 		this.tracingEnabled = false;
 	}
@@ -78,6 +81,16 @@ public class LineStatPreferences implements IPluginPreferences
 		return filters;
 	}
 
+	public void setExportStatsFilePath( File exportStatsFilePath )
+	{
+		this.exportStatsFilePath = exportStatsFilePath;
+	}
+
+	public File getExportStatsFilePath( )
+	{
+		return exportStatsFilePath;
+	}
+
 	public void setFileFilterPath( File fileFilterPath )
 	{
 		this.fileFilterPath = fileFilterPath;
@@ -93,6 +106,9 @@ public class LineStatPreferences implements IPluginPreferences
 	{
 		String fileFilterPathStr = pluginPrefRoot.get( PRP_FILTER_FILE_PATH, "" );
 		this.fileFilterPath = new File( fileFilterPathStr );
+
+		String exportStatsFilterPathStr = pluginPrefRoot.get( PRP_EXPORT_STATS_FILE_PATH, "" );
+		this.exportStatsFilePath = new File( exportStatsFilterPathStr );
 
 		this.tracingEnabled = pluginPrefRoot.getBoolean( PRP_TRACING_ENABLED, false );
 
@@ -135,6 +151,7 @@ public class LineStatPreferences implements IPluginPreferences
 	public void save( Preferences pluginPrefRoot )
 	{
 		pluginPrefRoot.put( PRP_FILTER_FILE_PATH, this.fileFilterPath.getAbsolutePath( ) );
+		pluginPrefRoot.put( PRP_EXPORT_STATS_FILE_PATH, this.exportStatsFilePath.getAbsolutePath( ) );
 
 		pluginPrefRoot.putBoolean( PRP_TRACING_ENABLED, this.tracingEnabled );
 
