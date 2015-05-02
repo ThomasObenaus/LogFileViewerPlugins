@@ -10,6 +10,7 @@
 
 package thobe.logfileviewer.plugins.linestats;
 
+import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 import thobe.logfileviewer.plugin.source.logline.ILogLine;
@@ -22,14 +23,14 @@ import thobe.logfileviewer.plugin.util.PatternMatch;
  */
 public class Clock
 {
-
 	private Pattern	pat;
 	private long	start;
 	private long	currentTime;
+	private Logger	log;
 
-	public Clock( Pattern pat )
+	public Clock( Logger log, Pattern pat )
 	{
-
+		this.log = log;
 		this.pat = pat;
 		this.currentTime = 0;
 		this.start = 0;
@@ -66,26 +67,33 @@ public class Clock
 			if ( this.start == 0 )
 			{
 				this.start = tsOfCurrentLL;
+				LOG( ).info( "Clock [" + pat.toString( ) + "] started (startOfClock=" + this.start + ")" );
 			}
 
 			if ( tsOfCurrentLL < this.currentTime )
 			{
 				this.start = tsOfCurrentLL;
 				this.currentTime = tsOfCurrentLL;
-				throw new ClockDetectedException( "Reverse clock detected", ll.getData( ), this.pat.toString( ) );
+				throw new ClockDetectedException( "Reverse clock detected (startOfClock=" + this.start + ", currentClock=" + this.currentTime + ", newCurrent=" + tsOfCurrentLL + ")", ll.getData( ), this.pat.toString( ) );
 			}
 
 			this.currentTime = tsOfCurrentLL;
-		}
+		}// if ( PatternMatch.matches( this.pat, ll ) )
 
 		return result;
 	}
 
 	public void reset( Pattern pat )
 	{
+		LOG( ).info( "Clock [" + pat.toString( ) + "] reset (startOfClock=" + this.start + ", currentClock=" + this.currentTime + ")" );
 		this.pat = pat;
 		this.start = 0;
 		this.currentTime = 0;
+	}
+
+	protected Logger LOG( )
+	{
+		return log;
 	}
 
 }

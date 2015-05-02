@@ -12,6 +12,7 @@ package thobe.logfileviewer.plugins.linestats;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 /**
@@ -29,9 +30,11 @@ public class LineStatistics
 	private Pattern												filter;
 	private double												peakLPS;
 	private double												lowLPS;
+	private Logger												log;
 
-	public LineStatistics( Pattern filter )
+	public LineStatistics( Logger log, Pattern filter )
 	{
+		this.log = log;
 		this.filter = filter;
 		this.accumulatedLines = 0;
 		this.startTimeStamp = 0;
@@ -126,6 +129,12 @@ public class LineStatistics
 
 	public void addLines( long lines, TimeRange timeRange )
 	{
+		if ( this.startTimeStamp > timeRange.getStart( ) )
+		{
+			LOG( ).severe( "Invalid time-range detected! Statistic has to be reset. StartTimeStamp=" + this.startTimeStamp + ", startOfNewTimeRange=" + timeRange.getStart( ) );
+			reset( );
+		}// if(this.startTimeStamp > timeRange.getStart( ))
+
 		if ( this.startTimeStamp == 0 )
 		{
 			this.startTimeStamp = timeRange.getStart( );
@@ -223,6 +232,11 @@ public class LineStatistics
 		}
 
 		return false;
+	}
+
+	protected Logger LOG( )
+	{
+		return log;
 	}
 
 	private class IntervalAccumulator

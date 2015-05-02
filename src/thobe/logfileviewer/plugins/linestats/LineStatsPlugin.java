@@ -67,7 +67,7 @@ public class LineStatsPlugin extends Plugin
 		this.clockListeners = new ArrayList<IClockListener>( );
 		this.lineStatPrefs = new LineStatPreferences( LOG( ) );
 
-		this.clock = new Clock( Pattern.compile( ".*" ) );
+		this.clock = new Clock( LOG( ), Pattern.compile( ".*" ) );
 		this.listeners = new ArrayList<ILineStatsPluginListener>( );
 		this.pa_lineStats = new LineStatsPanel( LOG( ), this );
 		this.addListener( this.pa_lineStats );
@@ -161,7 +161,7 @@ public class LineStatsPlugin extends Plugin
 	 */
 	public LineStatistics addFilter( Pattern filter )
 	{
-		LineStatistics added = new LineStatistics( filter );
+		LineStatistics added = new LineStatistics( LOG( ), filter );
 		added.reset( );
 
 		synchronized ( this.countsForCurrentRun )
@@ -183,7 +183,7 @@ public class LineStatsPlugin extends Plugin
 		List<LineStatistics> tmp = new ArrayList<LineStatistics>( );
 		for ( Pattern pat : filters )
 		{
-			LineStatistics added = new LineStatistics( pat );
+			LineStatistics added = new LineStatistics( LOG( ), pat );
 			added.reset( );
 			tmp.add( added );
 		}
@@ -312,29 +312,28 @@ public class LineStatsPlugin extends Plugin
 			e.setValue( new Long( 0 ) );
 		}
 
-		long start = this.clock.getCurrentTime( );
 		try
 		{
-			for ( ILogLine ll : block )
-			{
-				if ( this.clock.updateTime( ll ) )
-				{
-					for ( Map.Entry<Pattern, Long> entry : this.patLineCounter.entrySet( ) )
-					{
-						if ( PatternMatch.matches( entry.getKey( ), ll ) )
-						{
-							entry.setValue( entry.getValue( ) + 1 );
-						}// if ( PatternMatch.matches( entry.getKey( ), ll ) )
-
-					}// for ( Map.Entry<Pattern, Long> entry : this.patLineCounter.entrySet( ) )
-				}// if ( this.clock.updateTime( ll ) )
-			}// for ( ILogLine ll : block )
-
-			TimeRange timeRange = new TimeRange( start, this.clock.getCurrentTime( ) );
-
-			// Now update the counts
 			synchronized ( countsForCurrentRun )
 			{
+				long start = this.clock.getCurrentTime( );
+
+				for ( ILogLine ll : block )
+				{
+					if ( this.clock.updateTime( ll ) )
+					{
+						for ( Map.Entry<Pattern, Long> entry : this.patLineCounter.entrySet( ) )
+						{
+							if ( PatternMatch.matches( entry.getKey( ), ll ) )
+							{
+								entry.setValue( entry.getValue( ) + 1 );
+							}// if ( PatternMatch.matches( entry.getKey( ), ll ) )
+
+						}// for ( Map.Entry<Pattern, Long> entry : this.patLineCounter.entrySet( ) )
+					}// if ( this.clock.updateTime( ll ) )
+				}// for ( ILogLine ll : block )
+
+				TimeRange timeRange = new TimeRange( start, this.clock.getCurrentTime( ) );
 				for ( Map.Entry<Pattern, Long> entry : this.patLineCounter.entrySet( ) )
 				{
 					Long value = entry.getValue( );
