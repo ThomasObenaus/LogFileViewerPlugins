@@ -42,8 +42,7 @@ public class Console extends Plugin implements ISubConsoleFactoryAccess, IConsol
 {
 	private static final int			MAJOR_VERSION				= 0;
 	private static final int			MINOR_VERSION				= 13;
-	private static final int			BUGFIX_VERSION				= 0;
-
+	private static final int			BUGFIX_VERSION				= 1;
 	public static final String			FULL_PLUGIN_NAME			= "thobe.logfileviewer.plugin.Console";
 	/**
 	 * Max time spent waiting for completion of the next block of {@link LogLine}s (in MS)
@@ -175,7 +174,10 @@ public class Console extends Plugin implements ISubConsoleFactoryAccess, IConsol
 	public void onPrepareCloseLogStream( )
 	{
 		LOG( ).info( this.getPluginName( ) + " prepare to close LogStream." );
-		this.lineBuffer.clear( );
+		synchronized ( this.lineBuffer )
+		{
+			this.lineBuffer.clear( );
+		}
 		this.eventSemaphore.release( );
 	}
 
@@ -223,6 +225,7 @@ public class Console extends Plugin implements ISubConsoleFactoryAccess, IConsol
 			long startTime = System.currentTimeMillis( );
 			boolean timeThresholdHurt = false;
 			boolean blockSizeThresholdHurt = false;
+			boolean linesInBufferRemaining = false;
 			block.clear( );
 
 			// collect some lines
@@ -235,12 +238,20 @@ public class Console extends Plugin implements ISubConsoleFactoryAccess, IConsol
 					blockSizeThresholdHurt = block.size( ) > MAX_LINES_PER_BLOCK;
 					timeThresholdHurt = ( System.currentTimeMillis( ) - startTime ) > MAX_TIME_PER_BLOCK_IN_MS;
 				}// while ( ( !this.lineBuffer.isEmpty( ) ) && !timeThresholdHurt && !blockSizeThresholdHurt ).
+
+				linesInBufferRemaining = !this.lineBuffer.isEmpty( );
 			}// synchronized ( this.lineBuffer ).
 
 			// Add the block if we have collected some lines
 			if ( !block.isEmpty( ) )
 			{
 				this.fireNewBlockOfLogLines( block );
+
+				// release the semaphore in case we have still lines in the buffer
+				if ( linesInBufferRemaining )
+				{
+					this.eventSemaphore.release( );
+				}
 			}// if ( !block.isEmpty( ) ).
 
 			try
@@ -308,7 +319,10 @@ public class Console extends Plugin implements ISubConsoleFactoryAccess, IConsol
 	@Override
 	public void onNewBlockOfLines( List<ILogLine> blockOfLines )
 	{
-		this.lineBuffer.addAll( blockOfLines );
+		synchronized ( this.lineBuffer )
+		{
+			this.lineBuffer.addAll( blockOfLines );
+		}
 		this.eventSemaphore.release( );
 	}
 
@@ -348,7 +362,10 @@ public class Console extends Plugin implements ISubConsoleFactoryAccess, IConsol
 	{
 		long memInLineBuffer = 0;
 		for ( ILogLine ll : this.lineBuffer )
+		{
 			memInLineBuffer += ll.getMemory( ) + SizeOf.REFERENCE + SizeOf.HOUSE_KEEPING_ARRAY;
+		}
+
 		long memInEventQueue = this.eventQueue.size( ) * SizeOf.REFERENCE * SizeOf.HOUSE_KEEPING;
 
 		long memoryOfAttachedDataListeners = 0;
