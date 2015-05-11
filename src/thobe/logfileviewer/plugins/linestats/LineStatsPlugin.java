@@ -378,6 +378,10 @@ public class LineStatsPlugin extends Plugin
 					}// if ( this.clock.updateTime( ll ) )
 				}// for ( ILogLine ll : block )
 
+				if(start==0)
+				{
+					start = this.clock.getStart( );
+				}
 				TimeRange timeRange = new TimeRange( start, this.clock.getCurrentTime( ) );
 				for ( Map.Entry<Pattern, Long> entry : this.patLineCounter.entrySet( ) )
 				{
